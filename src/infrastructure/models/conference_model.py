@@ -1,0 +1,62 @@
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
+from src.infrastructure.databases.postgres import Base
+
+class ConferenceModel(Base):
+    """Thông tin chính về Hội nghị."""
+    __tablename__ = "conferences"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    abbreviation = Column(String)
+    description = Column(String)
+    website_url = Column(String)
+    
+    # Deadlines (Cơ bản)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    submission_deadline = Column(DateTime)
+    review_deadline = Column(DateTime)
+    
+    # Settings (Cơ bản)
+    is_open = Column(Boolean, default=True)
+    double_blind = Column(Boolean, default=True)
+    
+    # Relationships
+    tracks = relationship("TrackModel", back_populates="conference", lazy="selectin")
+    email_templates = relationship("EmailTemplateModel", back_populates="conference")
+    lessons = relationship("LessonModel", back_populates="conference")
+    
+class TrackModel(Base):
+    """Các chủ đề/track của Hội nghị."""
+    __tablename__ = "tracks"
+    id = Column(Integer, primary_key=True)
+    conference_id = Column(ForeignKey("conferences.id"), nullable=False)
+    name = Column(String, nullable=False)
+    max_reviewers = Column(Integer, default=3)
+    
+    # Relationships
+    conference = relationship("ConferenceModel", back_populates="tracks")
+    submissions = relationship("SubmissionModel", back_populates="track", lazy="selectin")
+
+class EmailTemplateModel(Base):
+    """Mẫu email có thể tùy chỉnh."""
+    __tablename__ = "email_templates"
+    id = Column(Integer, primary_key=True)
+    conference_id = Column(ForeignKey("conferences.id"), nullable=False)
+    name = Column(String, nullable=False) # e.g., CFP_INVITE, DECISION_ACCEPT
+    subject = Column(String)
+    body = Column(String)
+
+    conference = relationship("ConferenceModel", back_populates="email_templates")
+
+class LessonModel(Base):
+    """Tên bảng là lessons trong ERD, có thể là Sessions."""
+    __tablename__ = "lessons"
+    id = Column(Integer, primary_key=True)
+    conference_id = Column(ForeignKey("conferences.id"), nullable=False)
+    name = Column(String, nullable=False) # e.g., Oral Session 1, Poster Session A
+    
+    conference = relationship("ConferenceModel", back_populates="lessons")
+    schedule_items = relationship("ScheduleItemModel", back_populates="lesson")

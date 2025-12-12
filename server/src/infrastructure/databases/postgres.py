@@ -1,8 +1,11 @@
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text
 from config import settings
+
+# Base cho Alembic migrations
+Base = declarative_base()
 
 # Tạo async engine
 engine = create_async_engine(settings.DATABASE_URL, echo=True)

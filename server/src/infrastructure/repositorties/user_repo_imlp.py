@@ -1,52 +1,35 @@
-from sqlalchemy.orm import Session
-from infrastructure.repositories_interfaces.user_repository import IUserRepository
-from infrastructure.models.user_model import UserModel, RoleModel
 
-class UserRepository(IUserRepository):
 
-    def __init__(self, db: Session):
-        self.db = db
+from typing import Optional, List
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from infrastructure.repositories_interfaces.user_repository import UserRepository
+from infrastructure.models.user_model import UserModel, UserRoleModel 
 
-    def create_user(self, email, hashed_password, full_name,
-                    affiliation=None, phone_number=None,
-                    website_url=None, roles=None):
 
-        user = UserModel(
-            email=email,
-            hashed_password=hashed_password,
-            full_name=full_name,
-            affiliation=affiliation,
-            phone_number=phone_number,
-            website_url=website_url
+class UserRepositoryImpl(UserRepository):
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+    async def get_by_id(self, user_id: int) -> Optional[UserModel]:
+        stmt = select(UserModel).where(UserModel.id == user_id)
+        result = await self.db_session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_by_email(self, email: str) -> Optional[UserModel]:
+        stmt = select(UserModel).where(UserModel.email == email)
+        result = await self.db_session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_user_by_role(self, role_id: int) -> List[UserModel]:
+        stmt = (
+            select(UserModel)
+            .join(UserRoleModel)
+            .where(UserRoleModel.role_id == role_id)
         )
+        result = await self.db_session.execute(stmt)
+        return result.scalars().all()
 
-        # Gán roles nếu có
-        if roles:
-            role_objs = self.db.query(RoleModel).filter(RoleModel.name.in_(roles)).all()
-            user.roles = role_objs
-
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
-        return user # pyright: ignore[reportReturnNone]jkejtejejoejogeojgojeojgejo
-
-    def get_by_email(self, email):
-        return self.db.query(UserModel).filter(UserModel.email == email).first()
-
-    def get_by_id(self, user_id: int):
-        return self.db.query(UserModel).filter(UserModel.id == user_id).first()
-
-    def list_users(self):
-        return self.db.query(UserModel).all()
-
-    def update_user(self, user_id: int, data: dict):
-        self.db.query(UserModel).filter(UserModel.id == user_id).update(data)
-        self.db.commit()
-        return self.get_by_id(user_id)
-
-    def delete_user(self, user_id: int):
-        user = self.get_by_id(user_id)
-        if user:
-            self.db.delete(user)
-            self.db.commit()
-        return True
+    async def save(self, user: UserModel) -> UserModel:
+        self.db_session.add(user)
+        return user

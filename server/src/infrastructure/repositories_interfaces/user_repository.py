@@ -1,37 +1,22 @@
 from abc import ABC, abstractmethod
+from typing import Optional, List
+from infrastructure.models.user_model import UserModel
 
-
-class IUserRepository(ABC):
+class UserRepository(ABC):
     @abstractmethod
-    def create_user(
-        self,
-        email: str,
-        hashed_password: str,
-        full_name: str,
-        affiliation: str = None,
-        phone_number: str = None,
-        website_url: str = None,
-        roles: list = None,
-    ):
+    async def get_by_id(self, user_id: int) -> Optional[UserModel]:
         pass
 
     @abstractmethod
-    def get_by_email(self, email: str):
+    async def get_by_email(self, email: str) -> Optional[UserModel]:
         pass
 
     @abstractmethod
-    def get_by_id(self, user_id: int):
+    async def get_user_by_role(self, role_id: int) -> List[UserModel]:
+        """Tìm tất cả người dùng có vai trò cụ thể."""
         pass
 
     @abstractmethod
-    def list_users(self):
+    async def save(self, user: UserModel) -> UserModel:
+        """Lưu hoặc cập nhật người dùng."""
         pass
-
-    @abstractmethod
-    def update_user(self, user_id: int, data: dict):
-        pass
-
-    @abstractmethod
-    def delete_user(self, user_id: int):
-        pass
-

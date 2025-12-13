@@ -10,6 +10,7 @@ from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
+from services.user.user_management_service import UserManagementService
 
 
 # 1. Hàm Factory cho Database Session
@@ -67,4 +68,13 @@ def get_refresh_service(
 ) -> RefreshTokenService:
     """Cung cấp Refresh Token Service."""
     return RefreshTokenService(db_session, user_repo, jwt_service)
+
+
+# 8. Hàm Factory cho User Management Service
+def get_user_management_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> UserManagementService:
+    """Cung cấp User Management Service."""
+    return UserManagementService(user_repo, db_session)
 

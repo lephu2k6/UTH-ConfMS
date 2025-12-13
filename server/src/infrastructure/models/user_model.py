@@ -37,3 +37,18 @@ class UserModel(Base):
     @property
     def role_names(self) -> list[str]:
         return [role.name for role in self.roles] if self.roles else []
+    def to_domain_model(self):
+        from src.domain.models.user import User # Tránh import vòng
+        
+        return User(
+            id=self.id,
+            email=self.email,
+            full_name=self.full_name,
+            affiliation=self.affiliation,
+            phone_number=self.phone_number,
+            website_url=self.website_url,
+            is_verified=self.is_verified,
+            is_active=self.is_active,
+            created_at=self.created_at,
+            roles=self.role_names
+        )

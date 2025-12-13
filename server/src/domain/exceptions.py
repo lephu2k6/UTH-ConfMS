@@ -9,3 +9,11 @@ class AuthenticationError(Exception):
 class InitialChairExistsError(Exception):
     """Raised when trying to create an initial chair while one already exists."""
 
+
+class UserNotFoundError(Exception):
+    """Raised when a user is not found."""
+
+
+class InvalidUserOperationError(Exception):
+    """Raised when attempting an invalid user operation."""
+

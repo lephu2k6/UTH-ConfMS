@@ -10,6 +10,12 @@ from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
+from services.user.create_user_service import CreateUserService
+from services.user.list_users_service import ListUsersService
+from services.user.get_user_service import GetUserService
+from services.user.update_user_service import UpdateUserService
+from services.user.delete_user_service import DeleteUserService
+from services.user.update_user_roles_service import UpdateUserRolesService
 
 
 # 1. Hàm Factory cho Database Session
@@ -67,4 +73,58 @@ def get_refresh_service(
 ) -> RefreshTokenService:
     """Cung cấp Refresh Token Service."""
     return RefreshTokenService(db_session, user_repo, jwt_service)
+
+
+# 8. Hàm Factory cho Create User Service
+def get_create_user_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> CreateUserService:
+    """Cung cấp Create User Service."""
+    return CreateUserService(user_repo, db_session)
+
+
+# 9. Hàm Factory cho List Users Service
+def get_list_users_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> ListUsersService:
+    """Cung cấp List Users Service."""
+    return ListUsersService(user_repo, db_session)
+
+
+# 10. Hàm Factory cho Get User Service
+def get_get_user_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> GetUserService:
+    """Cung cấp Get User Service."""
+    return GetUserService(user_repo, db_session)
+
+
+# 11. Hàm Factory cho Update User Service
+def get_update_user_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> UpdateUserService:
+    """Cung cấp Update User Service."""
+    return UpdateUserService(user_repo, db_session)
+
+
+# 12. Hàm Factory cho Delete User Service
+def get_delete_user_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> DeleteUserService:
+    """Cung cấp Delete User Service."""
+    return DeleteUserService(user_repo, db_session)
+
+
+# 13. Hàm Factory cho Update User Roles Service
+def get_update_user_roles_service(
+    user_repo: UserRepository = Depends(get_user_repo),
+    db_session: AsyncSession = Depends(get_db_session),
+) -> UpdateUserRolesService:
+    """Cung cấp Update User Roles Service."""
+    return UpdateUserRolesService(user_repo, db_session)
 

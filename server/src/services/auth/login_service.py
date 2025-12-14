@@ -21,10 +21,8 @@ class LoginService:
             {"user_id": user.id, "email": user.email, "roles": [role.name for role in user.roles]}
         )
 
-        # 2. Tạo Refresh Token (Chuỗi ngẫu nhiên) và thời gian hết hạn
+
         refresh_token_plain, expires_at = self.jwt_service.create_refresh_token()
-        
-        # 3. Hash Refresh Token và lưu vào DB (bảo mật)
         user.refresh_token_hash = Hasher.hash_password(refresh_token_plain)
         user.refresh_token_expires_at = expires_at
         
@@ -43,5 +41,8 @@ class LoginService:
 
         if not user.is_active:
             raise AuthenticationError("Tài khoản của bạn đã bị khóa.")
+        
+        if not user.is_verified:
+            raise AuthenticationError("Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư của bạn.")
 
         return await self.create_tokens(user)

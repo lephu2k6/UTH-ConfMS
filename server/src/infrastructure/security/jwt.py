@@ -29,7 +29,16 @@ class JWTService:
             raise AuthenticationError("Token không hợp lệ.")
 
     def create_refresh_token(self) -> Tuple[str, datetime]:
-        """Tạo Refresh Token ngẫu nhiên (dạng chuỗi dài)"""
+        """Tạo Refresh Token ngẫu nhiên"""
         refresh_token = secrets.token_urlsafe(32) 
         expires_at = datetime.utcnow() + timedelta(days=self.REFRESH_EXPIRE_DAYS)
         return refresh_token, expires_at
+
+    # hàm tạo token xác thực email nhé các ae!!!
+    def create_email_verification_token(self, user_id: int) -> str:
+        payload = {
+            "user_id": user_id,
+            "sub": "email_verification",
+            "exp": datetime.utcnow() + timedelta(minutes=30)
+        }
+        return jwt.encode(payload, self.SECRET_KEY, algorithm=self.ALGORITHM)

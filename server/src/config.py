@@ -22,4 +22,13 @@ class Settings:
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 
     REFRESH_TOKEN_EXPIRE_DAYS = 60 * 24 * 10
+    
+    # --- Cấu hình Email ---
+    SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "")
+    SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "UTH-ConfMS")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 settings = Settings()

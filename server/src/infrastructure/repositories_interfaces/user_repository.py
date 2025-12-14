@@ -20,3 +20,21 @@ class UserRepository(ABC):
     async def save(self, user: UserModel) -> UserModel:
         """Lưu hoặc cập nhật người dùng."""
         pass
+    
+
+    #CRUD user management
+    @abstractmethod
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[UserModel]:
+        """Lấy tất cả người dùng."""
+        pass
+    @abstractmethod
+    async def delete(self, user_id: int) -> None:
+        """Xóa người dùng."""
+        pass
+    @abstractmethod
+    async def update(self, user: UserModel) -> UserModel:
+        """Cập nhật người dùng."""
+        pass
+    async def create(self, user: UserModel) -> UserModel:
+        """Tạo người dùng."""
+        pass

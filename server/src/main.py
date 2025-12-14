@@ -1,4 +1,3 @@
-# src/main.py
 from fastapi import FastAPI
 
 from infrastructure.databases.postgres import test_connection
@@ -11,8 +10,10 @@ app = FastAPI(title="UTH-ConfMS API")
 async def on_startup():
     await test_connection()
 
-
+#router
 app.include_router(auth_controller.router)
+
+
 
 
 @app.get("/")

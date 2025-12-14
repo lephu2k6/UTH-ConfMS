@@ -1,13 +1,18 @@
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, model_validator
 
 
 class RegisterRequest(BaseModel):
     full_name: str
     email: EmailStr
     password: str
-    affiliation: str
-    is_reviewer: bool = False
+    password_confirmation: str
+    
+    @model_validator(mode='after')
+    def passwords_match(self):
+        if self.password != self.password_confirmation:
+            raise ValueError('Mật khẩu xác nhận không khớp')
+        return self
 
 
 class LoginRequest(BaseModel):
@@ -24,6 +29,10 @@ class ChairSetupRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    refresh_token: Optional[str] = None 
+    
+    class Config:
+        from_attributes = True
 
 
 class UserResponse(BaseModel):
@@ -36,13 +45,18 @@ class UserResponse(BaseModel):
     roles: List[str] = Field(default_factory=list, alias="role_names")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    refresh_token: Optional[str] = None 
-    
-    class Config:
-        from_attributes = True
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class EmailVerificationRequest(BaseModel):
+    token: str
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr

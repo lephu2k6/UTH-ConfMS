@@ -188,12 +188,5 @@ async def delete_user(
     user_service: UserManagementService = Depends(get_user_management_service),
     current_user: UserModel = Depends(require_admin),
 ):
-    """Xóa người dùng (Yêu cầu quyền admin/chair)."""
-    try:
-        await user_service.delete_user(user_id)
-    except NotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        )
+    
 

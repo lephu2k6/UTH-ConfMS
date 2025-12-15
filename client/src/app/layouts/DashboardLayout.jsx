@@ -8,10 +8,11 @@ export default function DashboardLayout() {
         <div className="flex min-h-screen">
             <aside
                 className={`
-          bg-green-900 text-white
+          text-white
           transition-all duration-300
           ${open ? "w-64" : "w-14"}
         `}
+                style={{ backgroundColor: "rgb(0, 134, 137)" }}
             >
                 <div className="flex items-center gap-3 p-4 border-b border-white/10">
                     <button

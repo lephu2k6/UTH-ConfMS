@@ -1,92 +1,152 @@
-import React, { useState } from 'react';
-import './RegisterPage.css'; // CSS riêng cho Register
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+
+const TEXT = {
+  en: {
+    title: "Register",
+    subtitle: "Conference System",
+    fullName: "Full Name",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    submit: "Create Account",
+    login: "Already have an account? Sign In",
+    en: "English",
+    vi: "Vietnamese",
+  },
+  vi: {
+    title: "Đăng ký",
+    subtitle: "Hệ thống hội nghị",
+    fullName: "Họ và tên",
+    email: "Email",
+    password: "Mật khẩu",
+    confirmPassword: "Xác nhận mật khẩu",
+    submit: "Tạo tài khoản",
+    login: "Đã có tài khoản? Đăng nhập",
+    en: "English",
+    vi: "Tiếng Việt",
+  },
+};
 
 const RegisterPage = () => {
-  const [language, setLanguage] = useState('en');
-
-  // Icon Register
-  const RegisterIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-      <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37c.69-1.19 1.94-1.87 3.468-1.87h4c1.528 0 2.778.68 3.468 1.87A7 7 0 0 0 8 1z"/>
-    </svg>
-  );
+  const [language, setLanguage] = useState("vi");
+  const t = TEXT[language];
 
   return (
-    <div className="register-container">
-      <div className="register-card">
+    <div className="flex flex-col h-screen w-full font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
+      {/* Header */}
+      <header className="bg-white px-5 py-2.5 border-b border-gray-300 h-20 flex items-center">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ2qngGR0BYF1bjICOBcLj9Ud2CackBYmm7A&s"
+          alt="Logo"
+          className="h-full max-w-[300px] object-contain"
+        />
+      </header>
 
-        {/* Header */}
-        <div className="register-header">
-          <div className="logo-circle">
-            <RegisterIcon />
+      {/* Main */}
+      <main
+        className="flex-1 flex items-center justify-center relative bg-cover bg-center"
+        style={{ backgroundImage: "url('https://portal.ut.edu.vn/images/1.jpg')" }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-teal-400/30"></div>
+
+        {/* Register Box */}
+        <div className="relative z-10 bg-white px-10 py-8 rounded-[29px] shadow-lg w-[420px]">
+          <h1 className="text-[28px] font-medium text-[#2c5f68] mb-1 text-center">
+            {t.title}
+          </h1>
+
+          <h2 className="text-[18px] font-bold uppercase text-[#c62828] mb-4 text-center">
+            {t.subtitle}
+          </h2>
+
+          {/* Language toggle */}
+          <div className="flex justify-center gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`px-3 py-1 text-sm rounded-md border ${language === "en"
+                ? "bg-[#0e7c7b] text-white"
+                : "border-gray-300 text-gray-600"
+                }`}
+            >
+              {t.en}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("vi")}
+              className={`px-3 py-1 text-sm rounded-md border ${language === "vi"
+                ? "bg-[#0e7c7b] text-white"
+                : "border-gray-300 text-gray-600"
+                }`}
+            >
+              {t.vi}
+            </button>
           </div>
-          <h2 className="app-name">UTH-ConfMS</h2>
-          <p className="app-description">
-            UTH Scientific Conference Paper Management System
-          </p>
+
+          {/* Form */}
+          <form className="space-y-4">
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-600 mb-1">
+                {t.fullName}
+              </label>
+              <input
+                type="text"
+                placeholder="Nguyen Van A"
+                className="w-full px-2.5 py-2 text-sm border border-[#7c99a0] rounded-md outline-none shadow-inner focus:border-[#00796b] focus:ring-2 focus:ring-[#00796b]/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-600 mb-1">
+                {t.email}
+              </label>
+              <input
+                type="email"
+                placeholder="example@uth.edu.vn"
+                className="w-full px-2.5 py-2 text-sm border border-[#7c99a0] rounded-md outline-none shadow-inner focus:border-[#00796b] focus:ring-2 focus:ring-[#00796b]/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-600 mb-1">
+                {t.password}
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full px-2.5 py-2 text-sm border border-[#7c99a0] rounded-md outline-none shadow-inner focus:border-[#00796b] focus:ring-2 focus:ring-[#00796b]/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-600 mb-1">
+                {t.confirmPassword}
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full px-2.5 py-2 text-sm border border-[#7c99a0] rounded-md outline-none shadow-inner focus:border-[#00796b] focus:ring-2 focus:ring-[#00796b]/30"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2 mt-2 bg-[#0e7c7b] text-white text-sm uppercase rounded-md shadow-md hover:bg-[#0a6362] transition"
+            >
+              {t.submit}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-4 text-center text-[13px]">
+            <Link to="/login" className="text-blue-600 font-bold hover:underline">
+              {t.login}
+            </Link>
+          </div>
         </div>
-
-        {/* Language toggle */}
-        <div className="language-toggle">
-          <button
-            className={`lang-btn ${language === 'en' ? 'active' : ''}`}
-            onClick={() => setLanguage('en')}
-          >
-            English
-          </button>
-          <button
-            className={`lang-btn ${language === 'vi' ? 'active' : ''}`}
-            onClick={() => setLanguage('vi')}
-          >
-            Tiếng Việt
-          </button>
-        </div>
-
-        {/* Register Form */}
-        <form className="register-form">
-          <div className="form-group">
-            <label>Full Name</label>
-            <input type="text" placeholder="Nguyen Van A" />
-          </div>
-
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="example@uth.edu.vn" />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input type="password" placeholder="••••••••" />
-          </div>
-
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input type="password" placeholder="••••••••" />
-          </div>
-
-          <div className="form-group">
-            <label>Role</label>
-            <select>
-              <option>Author</option>
-              <option>Reviewer</option>
-              <option>Chair</option>
-            </select>
-          </div>
-
-          <button type="submit" className="signup-btn">
-            Create Account
-          </button>
-        </form>
-
-        {/* Footer */}
-        <div className="login-redirect">
-          <p>
-            Already have an account? <a href="/login">Sign In</a>
-          </p>
-        </div>
-
-      </div>
+      </main>
     </div>
   );
 };

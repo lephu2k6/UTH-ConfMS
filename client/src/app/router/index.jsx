@@ -9,6 +9,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import Login from "../../features/auth/pages/Login";
 import Register from "../../features/auth/pages/Register";
 import Home from "../../features/dashboard/pages/Home";
+import ForgotPassword from "../../features/auth/pages/ForgotPassword";
 
 export default function AppRouter() {
     return (
@@ -17,6 +18,7 @@ export default function AppRouter() {
                 <Route element={<PublicLayout />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path= "/forgotpassword" element = {<ForgotPassword />} />
                 </Route>
                 <Route path="/" element={<DashboardLayout />}>
                     <Route index element={<Home />} />

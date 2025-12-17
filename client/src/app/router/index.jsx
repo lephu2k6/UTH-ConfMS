@@ -16,11 +16,11 @@ export default function AppRouter() {
         <BrowserRouter>
             <Routes>
                 <Route element={<PublicLayout />}>
-                    <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path= "/forgotpassword" element = {<ForgotPassword />} />
                 </Route>
-                <Route path="/" element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
                 </Route>
             </Routes>

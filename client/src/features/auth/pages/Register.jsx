@@ -89,22 +89,20 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setLanguage("en")}
-                  className={`px-3 py-1 text-sm rounded-md border ${
-                    language === "en"
-                      ? "bg-[#0e7c7b] text-white"
-                      : "border-gray-300 text-gray-600"
-                  }`}
+                  className={`px-3 py-1 text-sm rounded-md border ${language === "en"
+                    ? "bg-[#0e7c7b] text-white"
+                    : "border-gray-300 text-gray-600"
+                    }`}
                 >
                   {t.en}
                 </button>
                 <button
                   type="button"
                   onClick={() => setLanguage("vi")}
-                  className={`px-3 py-1 text-sm rounded-md border ${
-                    language === "vi"
-                      ? "bg-[#0e7c7b] text-white"
-                      : "border-gray-300 text-gray-600"
-                  }`}
+                  className={`px-3 py-1 text-sm rounded-md border ${language === "vi"
+                    ? "bg-[#0e7c7b] text-white"
+                    : "border-gray-300 text-gray-600"
+                    }`}
                 >
                   {t.vi}
                 </button>
@@ -176,7 +174,7 @@ const RegisterPage = () => {
 
               {/* FOOTER */}
               <div className="mt-5 text-center text-[13px]">
-                <Link to="/login" className="text-blue-600 font-bold hover:underline">
+                <Link to="/" className="text-blue-600 font-bold hover:underline">
                   {t.login}
                 </Link>
               </div>

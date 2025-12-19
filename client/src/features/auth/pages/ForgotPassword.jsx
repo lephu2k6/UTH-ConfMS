@@ -12,7 +12,7 @@ const ForgotPassword = () => {
 
   const handleConfirm = () => {
     console.log("Xác nhận:", email, otp);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -120,7 +120,7 @@ const ForgotPassword = () => {
 
               {/* FOOTER LINK */}
               <div className="mt-5 text-center text-[13px]">
-                <Link to="/login" className="text-blue-600 font-bold hover:underline">
+                <Link to="/" className="text-blue-600 font-bold hover:underline">
                   Quay lại đăng nhập
                 </Link>
               </div>

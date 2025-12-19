@@ -10,7 +10,7 @@ import Login from "../../features/auth/pages/Login";
 import Register from "../../features/auth/pages/Register";
 import Home from "../../features/dashboard/pages/Home";
 import ForgotPassword from "../../features/auth/pages/ForgotPassword";
-
+import AuthorProfile from "../../features/auth/pages/AuthorProfile";
 export default function AppRouter() {
     return (
         <BrowserRouter>
@@ -22,6 +22,7 @@ export default function AppRouter() {
                 </Route>
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
+                     <Route path="profile" element={<AuthorProfile />} />
                 </Route>
             </Routes>
         </BrowserRouter>

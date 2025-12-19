@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate để điều hướng
-import { useAuthStore } from "../../../app/store/useAuthstore";
+import { useAuthStore } from "../../../app/store/useAuthStore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,13 +13,11 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // KIỂM TRA TẠI ĐÂY: Bạn phải truyền đủ cả email và password
-      console.log("Email hiện tại:", email); // Log thử xem biến email có dữ liệu không
-      console.log("Pass hiện tại:", password);
+      
 
       await login({
-        email: email.trim(), // Phải có dòng này!
-        password: password   // Và dòng này!
+        email: email.trim(), 
+        password: password   
       });
       
       navigate("/dashboard"); 

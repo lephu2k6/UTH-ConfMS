@@ -35,6 +35,14 @@ export const useAuthStore = create(
           set({ isLoading: false });
         }
       },
+      getUser: async () => {
+        try {
+            const res = await api.get("/user/me")
+            set({user : res.data})
+        }catch(err)  {
+          console.log(err)
+        }
+      },
 
       /* ================= LOGOUT ================= */
       logout: async () => {

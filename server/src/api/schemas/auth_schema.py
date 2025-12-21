@@ -60,3 +60,7 @@ class MessageResponse(BaseModel):
 
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
+
+class ResetPasswordConfirmRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., max_length=50)

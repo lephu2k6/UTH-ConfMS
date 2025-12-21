@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status ,BackgroundTasks
 
 from api.schemas.auth_schema import (
     RegisterRequest,
@@ -9,13 +9,14 @@ from api.schemas.auth_schema import (
     RefreshTokenRequest,
     EmailVerificationRequest,
     MessageResponse,
-    ResendVerificationRequest
+    ResendVerificationRequest,
+    ResetPasswordConfirmRequest
 )
 from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
-from services.auth.email_verification_service import EmailVerificationService
+from services.email.email_service import AuthCommunicationService
 from domain.exceptions import DuplicateUserError, AuthenticationError, InitialChairExistsError
 from dependency_container import (
     get_login_service, 
@@ -85,7 +86,7 @@ async def refresh_token_endpoint(
 @router.post("/verify-email", response_model=MessageResponse)
 async def verify_email_endpoint(
     request: EmailVerificationRequest,
-    verification_service: EmailVerificationService = Depends(get_email_verification_service),
+    verification_service: AuthCommunicationService = Depends(get_email_verification_service),
 ):
     try:
         await verification_service.verify_email(request.token)
@@ -100,7 +101,7 @@ async def verify_email_endpoint(
 @router.post("/resend-verification", response_model=MessageResponse)
 async def resend_verification_endpoint(
     request: ResendVerificationRequest,
-    verification_service: EmailVerificationService = Depends(get_email_verification_service),
+    verification_service: AuthCommunicationService = Depends(get_email_verification_service),
 ):
     try:
         await verification_service.resend_verification_email(request.email)
@@ -110,7 +111,49 @@ async def resend_verification_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+@router.post("/forgot-password")
+async def forgot_password(
+    email: str,
+    background_tasks: BackgroundTasks,
+    service: AuthCommunicationService = Depends(get_email_verification_service)
+):
+    print(f"DEBUG: Nhận yêu cầu forgot password cho email: {email}")
+    background_tasks.add_task(service.request_password_reset, email)
+    return {"message": "Email sẽ được gửi trong giây lát."}
 
+@router.post("/reset-password-confirm", response_model=MessageResponse)
+async def reset_password_confirm_endpoint(
+    request: ResetPasswordConfirmRequest,
+    service: AuthCommunicationService = Depends(get_email_verification_service)
+):
+    try:
+        await service.reset_password(
+            token=request.token, 
+            new_password=request.new_password
+        )
+        return MessageResponse(message="Mật khẩu của bạn đã được cập nhật thành công!")
+    except AuthenticationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+@router.post("/send-document/{user_id}")
+async def send_document(
+    user_id: int,
+    background_tasks: BackgroundTasks,
+    service: AuthCommunicationService = Depends(get_email_verification_service)
+):
+
+    file_path = f"./storage/papers/paper_user_{user_id}.pdf"
+    background_tasks.add_task(
+        service.send_user_document, 
+        user_id, 
+        "Xác nhận nộp bài báo", 
+        "Cảm ơn bạn đã nộp bài. Đính kèm là bản sao bài báo của bạn.",
+        file_path
+    )
+    return {"message": "Tài liệu đang được gửi đến email của bạn."}
 
 @router.post("/initial-chair-setup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_initial_chair_endpoint(

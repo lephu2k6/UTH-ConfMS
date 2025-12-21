@@ -13,7 +13,7 @@ from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
-from services.auth.email_verification_service import EmailVerificationService
+from services.email.email_service import AuthCommunicationService
 from services.user.user_management_service import UserManagementService
 from services.audit_log.audit_log_service import AuditLogService
 
@@ -79,9 +79,9 @@ def get_email_verification_service(
     db_session: AsyncSession = Depends(get_db_session),
     jwt_service: JWTService = Depends(get_jwt_service),
     email_service: EmailService = Depends(get_email_service),
-) -> EmailVerificationService:
+) -> AuthCommunicationService:
     """Cung cấp Email Verification Service."""
-    return EmailVerificationService(user_repo, db_session, jwt_service, email_service)
+    return AuthCommunicationService(user_repo, db_session, jwt_service, email_service)
 
 
 # 9. Hàm Factory cho Refresh Token Service (ĐÃ SỬA LỖI CÚ PHÁP)

@@ -42,3 +42,13 @@ class JWTService:
             "exp": datetime.utcnow() + timedelta(minutes=30)
         }
         return jwt.encode(payload, self.SECRET_KEY, algorithm=self.ALGORITHM)
+    def create_password_reset_token(self, user_id: int) -> str:
+        """Tạo token dành riêng cho việc reset mật khẩu (hết hạn nhanh)"""
+        expire = datetime.utcnow() + timedelta(minutes=self.EXPIRE_MINUTES)
+        
+        payload = {
+            "sub": "password_reset", 
+            "user_id": user_id,
+            "exp": expire
+        }
+        return jwt.encode(payload, self.SECRET_KEY, algorithm=self.ALGORITHM)

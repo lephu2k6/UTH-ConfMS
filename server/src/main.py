@@ -1,5 +1,6 @@
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.databases.postgres import test_connection
 from api.controllers import auth_controller, user_controller, audit_log_controller
@@ -16,6 +17,13 @@ app = FastAPI(title="UTH-ConfMS API")
 @app.on_event("startup")
 async def on_startup():
     await test_connection()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], 
+    allow_credentials=True, 
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 #router

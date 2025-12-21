@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 //layouts
 import PublicLayout from "../layouts/PublicLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
+import AuditLog from "../../features/dashboard/pages/auditLogs";
 
 //route auth
 import Login from "../../features/auth/pages/Login";
@@ -18,11 +19,12 @@ export default function AppRouter() {
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path= "/forgotpassword" element = {<ForgotPassword />} />
+                    <Route path="/forgotpassword" element={<ForgotPassword />} />
                 </Route>
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
-                     <Route path="profile" element={<AuthorProfile />} />
+                    <Route path="profile" element={<AuthorProfile />} />
+                    <Route path="audit-logs" element={<AuditLog />} />
                 </Route>
             </Routes>
         </BrowserRouter>

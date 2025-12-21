@@ -57,7 +57,9 @@ class EmailVerificationRequest(BaseModel):
 class MessageResponse(BaseModel):
     message: str
 
-
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+    
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
 

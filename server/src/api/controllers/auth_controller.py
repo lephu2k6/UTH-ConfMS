@@ -16,7 +16,7 @@ from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
-from services.email.email_service import AuthCommunicationService
+from services.auth.auth_communication_service import AuthCommunicationService
 from domain.exceptions import DuplicateUserError, AuthenticationError, InitialChairExistsError
 from dependency_container import (
     get_login_service, 
@@ -111,15 +111,13 @@ async def resend_verification_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
-@router.post("/forgot-password")
+@router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(
-    email: str,
-    background_tasks: BackgroundTasks,
+    request: ResendVerificationRequest,
     service: AuthCommunicationService = Depends(get_email_verification_service)
 ):
-    print(f"DEBUG: Nhận yêu cầu forgot password cho email: {email}")
-    background_tasks.add_task(service.request_password_reset, email)
-    return {"message": "Email sẽ được gửi trong giây lát."}
+    await service.request_password_reset(request.email)
+    return MessageResponse(message="Email khôi phục mật khẩu đã được gửi.")
 
 @router.post("/reset-password-confirm", response_model=MessageResponse)
 async def reset_password_confirm_endpoint(

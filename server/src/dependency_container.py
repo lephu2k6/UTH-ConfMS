@@ -9,11 +9,12 @@ from infrastructure.repositorties.audit_log_repo_impl import AuditLogRepositoryI
 from infrastructure.repositories_interfaces.audit_log_repository import AuditLogRepository
 from infrastructure.security.jwt import JWTService
 from infrastructure.email.email_service import EmailService
+from services.email.email_service import EmailService
 from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
-from services.email.email_service import AuthCommunicationService
+from services.auth.auth_communication_service import AuthCommunicationService
 from services.user.user_management_service import UserManagementService
 from services.audit_log.audit_log_service import AuditLogService
 
@@ -117,3 +118,13 @@ def get_audit_log_service(
     """Cung cấp Audit Log Service."""
     return AuditLogService(audit_log_repo, db_session)
 
+def get_email_service():
+    return EmailService()
+
+def get_auth_communication_service(
+    user_repo = Depends(get_user_repo),
+    db = Depends(get_db_session),
+    jwt = Depends(get_jwt_service),
+    email = Depends(get_email_service)
+):
+    return AuthCommunicationService(user_repo, db, jwt, email)

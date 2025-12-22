@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate để điều hướng
+import { Link, useNavigate } from "react-router-dom"; 
 import { useAuthStore } from "../../../app/store/useAuthStore";
 
 const Login = () => {
@@ -13,8 +13,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      
-
       await login({
         email: email.trim(), 
         password: password   

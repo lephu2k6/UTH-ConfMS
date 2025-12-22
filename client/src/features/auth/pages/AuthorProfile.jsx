@@ -1,88 +1,152 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { User, Mail, Shield, Edit2, Save, X, Globe, Phone, Building } from "lucide-react";
 import { useAuthStore } from "../../../app/store/useAuthStore";
+import api from "../../../lib/axios";
 
 export default function AuthorProfile() {
-  const user = useAuthStore((state) => state.user);
-  const updateProfile = useAuthStore((state) => state.updateProfile);
-
-  if (!user) return <p>Vui lòng đăng nhập</p>;
-
+  const { user, checkAuth, isCheckingAuth } = useAuthStore();
   const [editMode, setEditMode] = useState(false);
-  const [fullName, setFullName] = useState(user.fullName);
-  const [avatar, setAvatar] = useState(user.avatar);
+  const [loading, setLoading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    full_name: "",
+    affiliation: "",
+    phone_number: "",
+    website_url: "",
+  });
 
-  const handleSave = () => {
-    updateProfile({ fullName, avatar });
-    setEditMode(false);
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || "",
+        affiliation: user.affiliation || "",
+        phone_number: user.phone_number || "",
+        website_url: user.website_url || "",
+      });
+    }
+  }, [user]);
+
+  // Xử lý khi đang kiểm tra xác thực
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center h-64 text-teal-600 font-medium animate-pulse">
+        Đang xác thực thông tin...
+      </div>
+    );
+  }
+
+  // Xử lý khi không có user (sau khi đã checkAuth xong)
+  if (!user) {
+    return (
+      <div className="flex flex-col justify-center items-center h-64 text-gray-500">
+        <p className="mb-4">Vui lòng đăng nhập để xem thông tin</p>
+        <button 
+          onClick={() => window.location.href = '/login'}
+          className="bg-teal-600 text-white px-4 py-2 rounded-lg"
+        >
+          Đến trang đăng nhập
+        </button>
+      </div>
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      // Chú ý: Route này cũng cần kiểm tra lại với Backend (thường là /users/profile hoặc /profile)
+      await api.put("/user/profile", formData);
+      await checkAuth(); // Cập nhật lại store sau khi lưu
+      setEditMode(false);
+      alert("Cập nhật thành công!");
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err);
+      alert(err.response?.data?.detail || "Không thể cập nhật thông tin!");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0D9488&color=fff&size=200`;
+
   return (
-    <div style={{ maxWidth: 500 }}>
-      <div
-        style={{
-          background: "#fff",
-          padding: 24,
-          borderRadius: 12,
-          boxShadow: "0 10px 25px rgba(0,0,0,.1)"
-        }}
-      >
-        <h2 style={{ marginBottom: 20 }}>👤 Profile</h2> 
-
-        {/* Avatar */}
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <img
-            src={
-              avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                user.fullName
-              )}`
-            }
-            alt="avatar"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover"
-            }}
-          />
+    <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+      <div className="text-center mb-8">
+        <div className="relative inline-block">
+          <img src={avatarUrl} alt="avatar" className="w-32 h-32 rounded-full border-4 border-teal-50 shadow-sm mx-auto object-cover" />
+          {user.is_verified && (
+            <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1 rounded-full border-2 border-white">
+              <Shield size={14} fill="currentColor" />
+            </div>
+          )}
         </div>
+        <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.full_name}</h2>
+        <div className="flex justify-center gap-2 mt-1">
+          {user.role_names?.map((role) => (
+            <span key={role} className="px-3 py-0.5 bg-teal-50 text-teal-700 text-xs font-semibold rounded-full uppercase tracking-wider">
+              {role}
+            </span>
+          ))}
+        </div>
+      </div>
 
+      <div className="space-y-4">
         {!editMode ? (
           <>
-            <p><b>Họ tên:</b> {user.fullName}</p>
-            <p><b>Email:</b> {user.email}</p>
-            <p><b>Role:</b> {user.role}</p>
-
-            <button onClick={() => setEditMode(true)}>
-              ✏️ Chỉnh sửa
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Info icon={User} label="Họ và tên" value={user.full_name} />
+              <Info icon={Mail} label="Email hệ thống" value={user.email} />
+              <Info icon={Building} label="Cơ quan/Trường" value={user.affiliation || "Chưa cập nhật"} />
+              <Info icon={Phone} label="Số điện thoại" value={user.phone_number || "Chưa cập nhật"} />
+              <Info icon={Globe} label="Website" value={user.website_url || "Chưa cập nhật"} />
+            </div>
+            <button onClick={() => setEditMode(true)} className="w-full mt-6 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white py-3 rounded-xl transition-all font-bold">
+              <Edit2 size={18} /> Chỉnh sửa hồ sơ
             </button>
           </>
         ) : (
-          <>
-            <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Họ tên"
-              style={{ width: "100%", marginBottom: 10 }}
-            />
-
-            <input
-              value={avatar || ""}
-              onChange={(e) => setAvatar(e.target.value)}
-              placeholder="Avatar URL"
-              style={{ width: "100%", marginBottom: 10 }}
-            />
-
-            <button onClick={handleSave}>💾 Lưu</button>
-            <button
-              onClick={() => setEditMode(false)}
-              style={{ marginLeft: 10 }}
-            >
-              ❌ Hủy
-            </button>
-          </>
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 gap-4">
+              <InputGroup label="Họ và tên" value={formData.full_name} onChange={(v) => setFormData({...formData, full_name: v})} />
+              <InputGroup label="Cơ quan / Đơn vị" value={formData.affiliation} onChange={(v) => setFormData({...formData, affiliation: v})} />
+              <InputGroup label="Số điện thoại" value={formData.phone_number} onChange={(v) => setFormData({...formData, phone_number: v})} />
+              <InputGroup label="Website cá nhân" value={formData.website_url} onChange={(v) => setFormData({...formData, website_url: v})} />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button onClick={handleSave} disabled={loading} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <Save size={18} /> {loading ? "Đang lưu..." : "Lưu thay đổi"}
+              </button>
+              <button onClick={() => setEditMode(false)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                <X size={18} /> Hủy
+              </button>
+            </div>
+          </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function Info({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+      <div className="p-2 bg-white rounded-lg shadow-sm"><Icon className="text-teal-600" size={18} /></div>
+      <div>
+        <p className="text-xs text-gray-400 font-medium uppercase">{label}</p>
+        <p className="text-gray-800 font-semibold">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function InputGroup({ label, value, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">{label}</label>
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none" />
     </div>
   );
 }

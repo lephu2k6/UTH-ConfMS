@@ -63,8 +63,6 @@ class RegisterService:
         email_sent = await self.email_service.send_verification_email(new_user.email, verification_token)
         
         if not email_sent:
-            # Log warning nhưng vẫn cho phép đăng ký thành công
-            # User có thể yêu cầu gửi lại email sau
             import logging
             logger = logging.getLogger(__name__)
             logger.warning(f"Không thể gửi email xác thực cho user {new_user.email}. Token: {verification_token}")

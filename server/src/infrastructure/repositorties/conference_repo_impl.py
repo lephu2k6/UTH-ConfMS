@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from typing import List, Optional
 from domain.models.conference import Conference
 from infrastructure.models.conference_model import ConferenceModel
 from infrastructure.repositories_interfaces.conference_repository import ConferenceRepository  # pyright: ignore[reportMissingImports]
@@ -7,6 +8,22 @@ class ConferenceRepositoryImpl(ConferenceRepository):
 
     def __init__(self, db: Session):
         self.db = db
+
+    def _model_to_domain(self, model: ConferenceModel) -> Conference:
+        """Convert ConferenceModel to Conference domain model."""
+        return Conference(
+            id=model.id,
+            name=model.name,
+            abbreviation=model.abbreviation,
+            description=model.description,
+            website_url=model.website_url,
+            start_date=model.start_date,
+            end_date=model.end_date,
+            submission_deadline=model.submission_deadline,
+            review_deadline=model.review_deadline,
+            is_open=model.is_open,
+            double_blind=model.double_blind
+        )
 
     def create(self, conference: Conference) -> Conference:
         model = ConferenceModel(
@@ -26,16 +43,20 @@ class ConferenceRepositoryImpl(ConferenceRepository):
         self.db.commit()
         self.db.refresh(model)
 
-        return Conference(
-            id=model.id,
-            name=model.name,
-            abbreviation=model.abbreviation,
-            description=model.description,
-            website_url=model.website_url,
-            start_date=model.start_date,
-            end_date=model.end_date,
-            submission_deadline=model.submission_deadline,
-            review_deadline=model.review_deadline,
-            is_open=model.is_open,
-            double_blind=model.double_blind
-        )
+        return self._model_to_domain(model)
+
+    def get_by_id(self, conference_id: int) -> Optional[Conference]:
+        """Get conference by ID."""
+        model = self.db.query(ConferenceModel).filter(ConferenceModel.id == conference_id).first()
+        if model is None:
+            return None
+        return self._model_to_domain(model)
+
+    def get_all(self, skip: int = 0, limit: int = 100) -> List[Conference]:
+        """Get all conferences with pagination."""
+        models = self.db.query(ConferenceModel).offset(skip).limit(limit).all()
+        return [self._model_to_domain(model) for model in models]
+
+    def count_all(self) -> int:
+        """Count total number of conferences."""
+        return self.db.query(ConferenceModel).count()

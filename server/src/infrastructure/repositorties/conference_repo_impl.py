@@ -69,3 +69,30 @@ class ConferenceRepositoryImpl(ConferenceRepository):
             raise NotFoundError(f"Conference with id {conference_id} not found")
         self.db.delete(model)
         self.db.commit()
+
+    def update(self, conference: Conference) -> Conference:
+        """Update an existing conference and return the updated domain object.
+
+        Raises NotFoundError if the conference does not exist.
+        """
+        model = self.db.query(ConferenceModel).filter(ConferenceModel.id == conference.id).first()
+        if model is None:
+            raise NotFoundError(f"Conference with id {conference.id} not found")
+
+        # Update fields
+        model.name = conference.name
+        model.abbreviation = conference.abbreviation
+        model.description = conference.description
+        model.website_url = conference.website_url
+        model.start_date = conference.start_date
+        model.end_date = conference.end_date
+        model.submission_deadline = conference.submission_deadline
+        model.review_deadline = conference.review_deadline
+        model.is_open = conference.is_open
+        model.double_blind = conference.double_blind
+
+        self.db.add(model)
+        self.db.commit()
+        self.db.refresh(model)
+
+        return self._model_to_domain(model)

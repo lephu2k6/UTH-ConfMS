@@ -9,6 +9,7 @@ from infrastructure.repositorties.conference_repo_impl import ConferenceReposito
 from services.conference.create_conference import CreateConferenceService
 from services.conference.get_conference import GetConferenceService
 from services.conference.delete_conference import DeleteConferenceService
+from services.conference.update_conference import UpdateConferenceService
 
 router = APIRouter(prefix="/conferences", tags=["Conferences"])
 
@@ -157,4 +158,57 @@ def delete_conference_by_id(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error deleting conference: {str(e)}"
+        )
+
+
+@router.put("/{conference_id}", response_model=ConferenceResponse)
+def update_conference_by_id(
+    conference_id: int,
+    request: ConferenceCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """Update a conference by ID."""
+    try:
+        repo = ConferenceRepositoryImpl(db)
+        service = UpdateConferenceService(repo)
+
+        conference = Conference(
+            id=conference_id,
+            name=request.name,
+            abbreviation=request.abbreviation,
+            description=request.description,
+            website_url=request.website_url,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            submission_deadline=request.submission_deadline,
+            review_deadline=request.review_deadline,
+            is_open=request.is_open,
+            double_blind=request.double_blind
+        )
+
+        updated = service.update(conference)
+
+        return ConferenceResponse(
+            id=updated.id,
+            name=updated.name,
+            abbreviation=updated.abbreviation,
+            description=updated.description,
+            website_url=updated.website_url,
+            start_date=updated.start_date,
+            end_date=updated.end_date,
+            submission_deadline=updated.submission_deadline,
+            review_deadline=updated.review_deadline,
+            is_open=updated.is_open,
+            double_blind=updated.double_blind
+        )
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating conference: {str(e)}"
         )

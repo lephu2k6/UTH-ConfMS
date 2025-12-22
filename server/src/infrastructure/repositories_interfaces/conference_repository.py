@@ -25,3 +25,8 @@ class ConferenceRepository(ABC):
         """Delete a conference by its ID."""
         pass
 
+    @abstractmethod
+    def update(self, conference: "Conference") -> "Conference":
+        """Update an existing conference and return the updated domain object."""
+        pass
+

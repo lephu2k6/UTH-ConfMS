@@ -3,6 +3,7 @@ from typing import List, Optional
 from domain.models.conference import Conference
 from infrastructure.models.conference_model import ConferenceModel
 from infrastructure.repositories_interfaces.conference_repository import ConferenceRepository  # pyright: ignore[reportMissingImports]
+from domain.exceptions import NotFoundError
 
 class ConferenceRepositoryImpl(ConferenceRepository):
 
@@ -60,3 +61,11 @@ class ConferenceRepositoryImpl(ConferenceRepository):
     def count_all(self) -> int:
         """Count total number of conferences."""
         return self.db.query(ConferenceModel).count()
+
+    def delete(self, conference_id: int) -> None:
+        """Delete a conference by ID. Raises NotFoundError if not found."""
+        model = self.db.query(ConferenceModel).filter(ConferenceModel.id == conference_id).first()
+        if model is None:
+            raise NotFoundError(f"Conference with id {conference_id} not found")
+        self.db.delete(model)
+        self.db.commit()

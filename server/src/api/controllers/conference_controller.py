@@ -8,6 +8,7 @@ from infrastructure.databases.postgres import get_db
 from infrastructure.repositorties.conference_repo_impl import ConferenceRepositoryImpl  # pyright: ignore[reportMissingImports]
 from services.conference.create_conference import CreateConferenceService
 from services.conference.get_conference import GetConferenceService
+from services.conference.delete_conference import DeleteConferenceService
 
 router = APIRouter(prefix="/conferences", tags=["Conferences"])
 
@@ -127,4 +128,33 @@ def get_all_conferences(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error getting conferences: {str(e)}"
+        )
+
+
+@router.delete("/{conference_id}", response_model=dict)
+def delete_conference_by_id(
+    conference_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a conference by ID."""
+    try:
+        repo = ConferenceRepositoryImpl(db)
+        service = DeleteConferenceService(repo)
+
+        service.delete(conference_id)
+
+        return {
+            "message": "Conference deleted successfully",
+            "id": conference_id
+        }
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting conference: {str(e)}"
         )

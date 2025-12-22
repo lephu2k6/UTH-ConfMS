@@ -20,3 +20,8 @@ class ConferenceRepository(ABC):
     def count_all(self) -> int:
         pass
 
+    @abstractmethod
+    def delete(self, conference_id: int) -> None:
+        """Delete a conference by its ID."""
+        pass
+

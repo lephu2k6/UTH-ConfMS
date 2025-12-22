@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.databases.postgres import test_connection
-from api.controllers import auth_controller, user_controller, audit_log_controller
+from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller
 
 # Cấu hình logging
 logging.basicConfig(
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(auth_controller.router)
 app.include_router(user_controller.router)
 app.include_router(audit_log_controller.router)
+app.include_router(conference_controller.router)
 
 
 

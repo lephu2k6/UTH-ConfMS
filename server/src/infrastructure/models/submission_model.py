@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import NUMERIC
-from src.infrastructure.databases.postgres import Base
+from infrastructure.databases.postgres import Base
 from sqlalchemy.dialects.postgresql import JSONB
 
 class SubmissionModel(Base):
@@ -25,7 +25,18 @@ class SubmissionModel(Base):
     # Relationships
     track = relationship("TrackModel", back_populates="submissions")
     authors = relationship("SubmissionAuthorModel", back_populates="submission", lazy="selectin")
-    files = relationship("SubmissionFileModel", back_populates="submission", lazy="selectin")
+    files = relationship(
+        "SubmissionFileModel", 
+        back_populates="submission", 
+        lazy="selectin",
+        foreign_keys="SubmissionFileModel.submission_id"
+    )
+    camera_ready_file = relationship(
+        "SubmissionFileModel",
+        foreign_keys="SubmissionModel.camera_ready_submission",
+        uselist=False,
+        post_update=True
+    )
     
 class SubmissionAuthorModel(Base):
     """Liên kết Tác giả và Bài nộp."""
@@ -55,4 +66,8 @@ class SubmissionFileModel(Base):
     version = Column(Integer)
     
     # Relationships
-    submission = relationship("SubmissionModel", back_populates="files")
+    submission = relationship(
+        "SubmissionModel", 
+        back_populates="files",
+        foreign_keys="SubmissionFileModel.submission_id"
+    )

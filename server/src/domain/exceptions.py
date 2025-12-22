@@ -14,3 +14,7 @@ class NotFoundError(Exception):
     """Raised when a requested resource is not found."""
 
 
+class BusinessRuleException(Exception):
+    """Raised when a business rule is violated."""
+
+

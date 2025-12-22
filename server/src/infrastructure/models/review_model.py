@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean, PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean, UniqueConstraint, and_
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import NUMERIC
-from src.infrastructure.databases.postgres import Base
-from sqlalchemy.dialects.postgresql import JSONB
+from infrastructure.databases.postgres import Base
 
 class ReviewAssignmentModel(Base):
     """Phân công bài cho Reviewer."""
@@ -12,10 +10,16 @@ class ReviewAssignmentModel(Base):
     reviewer_id = Column(ForeignKey("users.id"), primary_key=True)
     
     auto_assigned = Column(Boolean, default=False)
-    # TBD: status (e.g., 'Pending', 'Submitted', 'Declined')
     
-    # Relationships
-    review = relationship("ReviewModel", back_populates="assignment", uselist=False)
+    # SỬA LỖI: Định nghĩa cách join với ReviewModel qua cặp bài nộp + người chấm
+    review = relationship(
+        "ReviewModel", 
+        primaryjoin="and_(ReviewAssignmentModel.submission_id == ReviewModel.submission_id, "
+                    "ReviewAssignmentModel.reviewer_id == ReviewModel.reviewer_id)",
+        foreign_keys="[ReviewModel.submission_id, ReviewModel.reviewer_id]",
+        uselist=False,
+        viewonly=True
+    )
 
 class ReviewModel(Base):
     """Nội dung bài đánh giá."""
@@ -28,11 +32,21 @@ class ReviewModel(Base):
     weakness = Column(String)
     best_paper_recommendation = Column(Boolean, default=False)
     
-    # Liên kết với Assignment
+    # Ràng buộc đảm bảo mỗi reviewer chỉ có 1 bài review cho 1 submission
     __table_args__ = (
-        UniqueConstraint('submission_id', 'reviewer_id', name='uq_review_assignment'),
+        UniqueConstraint('submission_id', 'reviewer_id', name='uq_review_submission_reviewer'),
     )
-    assignment = relationship("ReviewAssignmentModel", back_populates="review")
+
+    # SỬA LỖI: Định nghĩa ngược lại từ Review về Assignment
+    assignment = relationship(
+        "ReviewAssignmentModel", 
+        primaryjoin="and_(ReviewModel.submission_id == ReviewAssignmentModel.submission_id, "
+                    "ReviewModel.reviewer_id == ReviewAssignmentModel.reviewer_id)",
+        foreign_keys="[ReviewModel.submission_id, ReviewModel.reviewer_id]",
+        uselist=False,
+        viewonly=True
+    )
+    
     answers = relationship("ReviewAnswerModel", back_populates="review")
 
 class ReviewQuestionModel(Base):
@@ -40,7 +54,7 @@ class ReviewQuestionModel(Base):
     __tablename__ = "review_question"
     id = Column(Integer, primary_key=True)
     question = Column(String, nullable=False)
-    type = Column(String) # e.g., 'Score', 'Text', 'Choice'
+    type = Column(String) # ví dụ: 'Score', 'Text', 'Choice'
     required = Column(Boolean, default=True)
 
 class ReviewAnswerModel(Base):
@@ -48,7 +62,7 @@ class ReviewAnswerModel(Base):
     __tablename__ = "review_answers"
     review_id = Column(ForeignKey("reviews.id"), primary_key=True)
     question_id = Column(ForeignKey("review_question.id"), primary_key=True)
-    answer = Column(String) # Có thể là điểm số hoặc văn bản
+    answer = Column(String) 
     
     review = relationship("ReviewModel", back_populates="answers")
     question = relationship("ReviewQuestionModel")
@@ -68,7 +82,7 @@ class BiddingModel(Base):
     submission_id = Column(ForeignKey("submissions.id"), primary_key=True)
     reviewer_id = Column(ForeignKey("users.id"), primary_key=True)
     
-    bid = Column(String) # e.g., 'Yes', 'No', 'Maybe'
+    bid = Column(String) # ví dụ: 'Yes', 'No', 'Maybe'
     
 class ReviewerExpertiseModel(Base):
     """Chuyên môn (keywords) của Reviewer."""

@@ -5,6 +5,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from infrastructure.databases.postgres import test_connection
 from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller
 
+# Import tất cả models để SQLAlchemy có thể resolve relationships
+# Quan trọng: import submission_model trước conference_model vì TrackModel tham chiếu đến SubmissionModel
+from infrastructure.models import (
+    user_model,
+    submission_model,  # Phải import trước conference_model
+    conference_model,
+    review_model,
+    audit_log_model,
+    system_model
+)
+
 # Cấu hình logging
 logging.basicConfig(
     level=logging.INFO,

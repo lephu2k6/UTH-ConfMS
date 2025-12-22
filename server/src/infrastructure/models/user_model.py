@@ -38,7 +38,7 @@ class UserModel(Base):
     def role_names(self) -> list[str]:
         return [role.name for role in self.roles] if self.roles else []
     def to_domain_model(self):
-        from src.domain.models.user import User 
+        from domain.models.user import User 
         
         return User(
             id=self.id,

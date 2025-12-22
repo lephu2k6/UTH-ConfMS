@@ -6,3 +6,4 @@ class ConferenceRepository(ABC):
     @abstractmethod
     def create(self, conference: Conference) -> Conference:
         pass
+

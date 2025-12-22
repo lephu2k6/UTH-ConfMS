@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
-from src.infrastructure.databases.postgres import Base
+from infrastructure.databases.postgres import Base
 
 class ConferenceModel(Base):
     """Thông tin chính về Hội nghị."""
@@ -60,3 +60,7 @@ class LessonModel(Base):
     
     conference = relationship("ConferenceModel", back_populates="lessons")
     schedule_items = relationship("ScheduleItemModel", back_populates="lesson")
+
+# Import submission_model ở cuối file để đảm bảo SQLAlchemy có thể resolve relationships
+# Điều này đảm bảo SubmissionModel được đăng ký với SQLAlchemy trước khi TrackModel được sử dụng
+from infrastructure.models import submission_model  # noqa: F401

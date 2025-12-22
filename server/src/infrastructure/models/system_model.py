@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
-from src.infrastructure.databases.postgres import Base
+from infrastructure.databases.postgres import Base
 
 class HistoryLogModel(Base):
     """Lịch sử hoạt động và Audit Trail."""
@@ -41,4 +41,7 @@ class ScheduleItemModel(Base):
     end_time = Column(DateTime)
     
     lesson = relationship("LessonModel", back_populates="schedule_items")
-    submission = relationship("SubmissionModel")
+    submission = relationship(
+        "SubmissionModel",
+        primaryjoin="ScheduleItemModel.submission_id == SubmissionModel.id"
+    )

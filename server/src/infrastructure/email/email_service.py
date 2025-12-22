@@ -87,10 +87,7 @@ class EmailService:
     
     async def reset_password(self, token: str, new_password: str) -> bool:
         try:
-        # 1. Giải mã token trước để lấy user_id
             payload = self.jwt_service.decode_token(token)
-        
-        # Kiểm tra đúng loại token reset
             if payload.get("sub") != "password_reset":
                 raise AuthenticationError("Token không hợp lệ.")
 
@@ -99,17 +96,10 @@ class EmailService:
         
             if not user:
                 raise AuthenticationError("Người dùng không tồn tại.")
-
-        # 2. FIX TẠI ĐÂY: Sử dụng Hasher với 'new_password'
-        # Đảm bảo new_password là chuỗi mật khẩu từ người dùng nhập vào
             user.password_hash = Hasher.hash_password(new_password)
-        
-        # 3. Lưu vào DB
             await self.db_session.commit()
             return True
 
         except Exception as e:
-        # Log lỗi ra console để debug chính xác biến nào đang bị lỗi
             print(f"Lỗi Reset Password: {str(e)}")
-        #    Ném lỗi ra API
             raise AuthenticationError(f"Link đặt lại mật khẩu đã hết hạn hoặc không hợp lệ: {str(e)}")

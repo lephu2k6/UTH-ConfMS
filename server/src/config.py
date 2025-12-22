@@ -30,5 +30,5 @@ class Settings:
     SMTP_PASSWORD = "tpws jhia gxet paop"
     SMTP_FROM_EMAIL = "gatv3102006@gmail.com"
     SMTP_FROM_NAME = "UTH-ConfMS"
-    FRONTEND_URL = "http://localhost:3000"
+    FRONTEND_URL = "http://localhost:5173"
 settings = Settings()

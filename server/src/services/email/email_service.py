@@ -38,7 +38,7 @@ class EmailService:
     async def send(
         self,
         to_email: str,
-        subject: str,
+        subject: str,   
         html: str,
         attachment_path: Optional[str] = None
     ) -> None:

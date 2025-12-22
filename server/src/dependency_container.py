@@ -11,7 +11,7 @@ from infrastructure.repositories_interfaces.audit_log_repository import AuditLog
 from infrastructure.repositorties.conference_repo_impl import ConferenceRepositoryImpl 
 from infrastructure.repositories_interfaces.conference_repository import ConferenceRepository
 from infrastructure.security.jwt import JWTService
-from infrastructure.email.email_service import EmailService
+# from infrastructure.email.email_service import EmailService
 
 # Services Imports
 from services.auth.login_service import LoginService
@@ -21,7 +21,8 @@ from services.auth.refresh_service import RefreshTokenService
 from services.auth.auth_communication_service import AuthCommunicationService
 from services.user.user_management_service import UserManagementService
 from services.audit_log.audit_log_service import AuditLogService
-from services.auth.email_verification_service import EmailVerificationService  # pyright: ignore[reportMissingImports]
+from services.auth.email_verification_service import EmailVerificationService  
+from services.email.email_service import EmailService
 # Conference Services
 from services.conference.create_conference import CreateConferenceService
 from services.conference.get_conference import GetConferenceService
@@ -124,5 +125,5 @@ def get_email_verification_service(
     db_session: AsyncSession = Depends(get_db_session),
     jwt_service: JWTService = Depends(get_jwt_service),
     email_service: EmailService = Depends(get_email_service),
-) -> EmailVerificationService:
-    return EmailVerificationService(user_repo, db_session, jwt_service, email_service)
+) -> AuthCommunicationService:
+    return AuthCommunicationService(user_repo, db_session, jwt_service, email_service)

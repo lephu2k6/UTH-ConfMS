@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import { useAuthStore } from "../../../app/store/useAuthStore";
+import Header from "../../../components/Header";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,13 +28,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col h-screen w-full font-sans">
-      <header className="bg-white px-5 py-2.5 border-b border-gray-300 h-20 flex items-center">
-        <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ2qngGR0BYF1bjICOBcLj9Ud2CackBYmm7A&s"
-          alt="UTH Logo"
-          className="h-full max-w-[300px] object-contain"
-        />
-      </header>
+      <Header />
 
       <main
         className="flex-1 flex items-center justify-center relative bg-cover bg-center"
@@ -46,7 +41,7 @@ const Login = () => {
             
             <div className="hidden md:flex flex-col items-center justify-center bg-[#e0f2f1] p-8">
               <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ2qngGR0BYF1bjICOBcLj9Ud2CackBYmm7A&s"
+                src="https://portal.ut.edu.vn/images/logo_full.png"
                 className="w-56 mb-6"
                 alt="Logo"
               />

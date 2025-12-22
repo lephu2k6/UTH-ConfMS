@@ -12,6 +12,9 @@ import Register from "../../features/auth/pages/Register";
 import Home from "../../features/dashboard/pages/Home";
 import ForgotPassword from "../../features/auth/pages/ForgotPassword";
 import AuthorProfile from "../../features/auth/pages/AuthorProfile";
+import VerifyEmail from "../../features/auth/pages/VerifyEmail";
+import ResetPasswordConfirm from "../../features/auth/pages/ResetPasswordConfirm";
+
 export default function AppRouter() {
     return (
         <BrowserRouter>
@@ -19,7 +22,9 @@ export default function AppRouter() {
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/forgotpassword" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPasswordConfirm />} />
                 </Route>
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />

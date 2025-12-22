@@ -22,7 +22,7 @@ from dependency_container import (
     get_login_service, 
     get_register_service, 
     get_create_chair_service,
-    get_refresh_service,
+    get_refresh_service, 
     get_email_verification_service
 )
 

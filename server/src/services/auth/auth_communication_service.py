@@ -61,19 +61,32 @@ class AuthCommunicationService:
         html = EmailTemplates.notification(content)
         await self.email.send(user.email, title, html, file_path)
     async def verify_email(self, token: str) -> bool:
+        try:
+            # 1. Decode token
+            payload = self.jwt.decode_token(token)
+            
+            # 2. Kiểm tra loại token (Phải khớp với sub trong JWTService)
+            if payload.get("sub") != "email_verification":
+                raise AuthenticationError("Token xác thực không hợp lệ")
+            
+            # 3. Tìm user
+            user = await self.user_repo.get_by_id(payload["user_id"])
+            if not user:
+                raise AuthenticationError("Người dùng không tồn tại")
+            
+            # 4. Nếu đã xác thực rồi thì thôi
+            if user.is_verified:
+                return True
 
-        payload = self.jwt.decode_token(token)
-        if payload.get("sub") != "email_verification":
-            raise AuthenticationError("Token xác thực không hợp lệ")
-        user = await self.user_repo.get_by_id(payload["user_id"])
-        if not user:
-            raise AuthenticationError("Người dùng không tồn tại")
-        
-        if user.is_verified:
+            # 5. Cập nhật trạng thái
+            user.is_verified = True
+            
+            # QUAN TRỌNG: Phải commit để lưu vào database
+            await self.db.commit()
+            await self.db.refresh(user) # Làm mới dữ liệu user từ DB
             return True
-
-        user.is_verified = True
-    
-        
-        await self.db.commit()
-        return True
+            
+        except Exception as e:
+            # Nếu có lỗi thì rollback để tránh treo transaction
+            await self.db.rollback()
+            raise AuthenticationError(f"Xác thực thất bại: {str(e)}")

@@ -1,60 +1,88 @@
-import { useState } from "react";
-import { useAuthStore } from "../../../app/store/useAuthStore";
+import { useEffect, useState } from "react";
+import { User, Mail, Shield, Edit2, Save, X } from "lucide-react";
+import axios from "../../../lib/axios";
 
 export default function AuthorProfile() {
-  const user = useAuthStore((state) => state.user);
-  const updateProfile = useAuthStore((state) => state.updateProfile);
-
-  if (!user) return <p>Vui lòng đăng nhập</p>;
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [fullName, setFullName] = useState(user.fullName);
-  const [avatar, setAvatar] = useState(user.avatar);
+  const [fullName, setFullName] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    updateProfile({ fullName, avatar });
-    setEditMode(false);
+  /* ================= LOAD PROFILE ================= */
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("/profile");
+        setUser(res.data);
+        setFullName(res.data.fullName || "");
+        setAvatar(res.data.avatar || "");
+      } catch (err) {
+        console.error("Lỗi load profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6 text-center">Đang tải dữ liệu...</div>;
+  }
+
+  if (!user) {
+    return <div className="p-6 text-center">Vui lòng đăng nhập</div>;
+  }
+
+  /* ================= SAVE PROFILE ================= */
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const res = await axios.put("/profile", {
+        fullName,
+        avatar,
+      });
+      setUser(res.data);
+      setEditMode(false);
+    } catch (err) {
+      console.error("Lỗi cập nhật profile:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
+  const avatarUrl =
+    avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user.fullName
+    )}&background=0D9488&color=fff&size=200`;
+
   return (
-    <div style={{ maxWidth: 500 }}>
-      <div
-        style={{
-          background: "#fff",
-          padding: 24,
-          borderRadius: 12,
-          boxShadow: "0 10px 25px rgba(0,0,0,.1)"
-        }}
-      >
-        <h2 style={{ marginBottom: 20 }}>👤 Profile</h2> 
+    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-6">
+      <div className="text-center">
+        <img
+          src={avatarUrl}
+          alt="avatar"
+          className="w-28 h-28 rounded-full mx-auto"
+        />
+        <h2 className="mt-4 text-xl font-bold">{user.fullName}</h2>
+        <p className="text-teal-600">{user.role}</p>
+      </div>
 
-        {/* Avatar */}
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <img
-            src={
-              avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                user.fullName
-              )}`
-            }
-            alt="avatar"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover"
-            }}
-          />
-        </div>
-
+      <div className="mt-6 space-y-4">
         {!editMode ? (
           <>
-            <p><b>Họ tên:</b> {user.fullName}</p>
-            <p><b>Email:</b> {user.email}</p>
-            <p><b>Role:</b> {user.role}</p>
+            <Info icon={User} label="Họ tên" value={user.fullName} />
+            <Info icon={Mail} label="Email" value={user.email} />
+            <Info icon={Shield} label="Vai trò" value={user.role} />
 
-            <button onClick={() => setEditMode(true)}>
-              ✏️ Chỉnh sửa
+            <button
+              onClick={() => setEditMode(true)}
+              className="w-full bg-teal-600 text-white py-2 rounded"
+            >
+              <Edit2 size={16} /> Chỉnh sửa
             </button>
           </>
         ) : (
@@ -62,26 +90,51 @@ export default function AuthorProfile() {
             <input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              className="w-full border p-2 rounded"
               placeholder="Họ tên"
-              style={{ width: "100%", marginBottom: 10 }}
             />
-
             <input
-              value={avatar || ""}
+              value={avatar}
               onChange={(e) => setAvatar(e.target.value)}
+              className="w-full border p-2 rounded"
               placeholder="Avatar URL"
-              style={{ width: "100%", marginBottom: 10 }}
             />
 
-            <button onClick={handleSave}>💾 Lưu</button>
-            <button
-              onClick={() => setEditMode(false)}
-              style={{ marginLeft: 10 }}
-            >
-              ❌ Hủy
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 bg-green-600 text-white py-2 rounded"
+              >
+                <Save size={16} /> {saving ? "Đang lưu..." : "Lưu"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditMode(false);
+                  setFullName(user.fullName);
+                  setAvatar(user.avatar || "");
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded"
+              >
+                <X size={16} /> Hủy
+              </button>
+            </div>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ================= INFO ITEM ================= */
+function Info({ icon: Icon, label, value }) {
+  return (
+    <div className="flex gap-3 bg-gray-50 p-3 rounded">
+      <Icon className="text-teal-600" size={18} />
+      <div>
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className="font-medium">{value}</p>
       </div>
     </div>
   );

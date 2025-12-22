@@ -1,5 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
+import Footer from "../../components/Footer";
+import Navbar  from "../../components/Navbar";
 
 export default function DashboardLayout() {
     const [open, setOpen] = useState(true);
@@ -31,8 +33,12 @@ export default function DashboardLayout() {
                 )}
             </aside>
 
-            <main className="flex-1 p-6 bg-gray-50">
-                <Outlet />
+            <main className="flex-1 flex flex-col bg-gray-50">
+                    <Navbar />
+                <div className="flex-1 p-6">
+                    <Outlet />
+                </div>
+                <Footer />
             </main>
         </div>
     );

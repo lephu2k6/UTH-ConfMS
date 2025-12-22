@@ -28,6 +28,8 @@ app = FastAPI(title="UTH-ConfMS API")
 @app.on_event("startup")
 async def on_startup():
     await test_connection()
+
+    
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"], 

@@ -8,8 +8,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from config import settings
+from services.email.email_templates import EmailTemplates
 
 logger = logging.getLogger(__name__)
+
 
 class EmailService:
     def __init__(self):
@@ -39,7 +41,7 @@ class EmailService:
         subject: str,
         html: str,
         attachment_path: Optional[str] = None
-    ):
+    ) -> None:
         msg = self._create_message(to_email, subject)
         msg.attach(MIMEText(html, "html"))
 
@@ -56,3 +58,19 @@ class EmailService:
 
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, self._send_sync, msg)
+
+    # ===== Use-case methods =====
+
+    async def send_verification_email(self, to_email: str, token: str) -> None:
+        await self.send(
+            to_email=to_email,
+            subject="Xác thực tài khoản UTH-ConfMS",
+            html=EmailTemplates.verify_email(token)
+        )
+
+    async def send_reset_password_email(self, to_email: str, token: str) -> None:
+        await self.send(
+            to_email=to_email,
+            subject="Đặt lại mật khẩu UTH-ConfMS",
+            html=EmailTemplates.reset_password(token)
+        )

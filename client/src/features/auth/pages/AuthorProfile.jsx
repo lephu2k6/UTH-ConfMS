@@ -1,141 +1,152 @@
-import { useEffect, useState } from "react";
-import { User, Mail, Shield, Edit2, Save, X } from "lucide-react";
-import axios from "../../../lib/axios";
+import { useState, useEffect } from "react";
+import { User, Mail, Shield, Edit2, Save, X, Globe, Phone, Building } from "lucide-react";
+import { useAuthStore } from "../../../app/store/useAuthStore";
+import api from "../../../lib/axios";
 
 export default function AuthorProfile() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, checkAuth, isCheckingAuth } = useAuthStore();
   const [editMode, setEditMode] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    full_name: "",
+    affiliation: "",
+    phone_number: "",
+    website_url: "",
+  });
 
-  /* ================= LOAD PROFILE ================= */
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get("/profile");
-        setUser(res.data);
-        setFullName(res.data.fullName || "");
-        setAvatar(res.data.avatar || "");
-      } catch (err) {
-        console.error("Lỗi load profile:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
+    checkAuth();
   }, []);
 
-  if (loading) {
-    return <div className="p-6 text-center">Đang tải dữ liệu...</div>;
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || "",
+        affiliation: user.affiliation || "",
+        phone_number: user.phone_number || "",
+        website_url: user.website_url || "",
+      });
+    }
+  }, [user]);
+
+  // Xử lý khi đang kiểm tra xác thực
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center h-64 text-teal-600 font-medium animate-pulse">
+        Đang xác thực thông tin...
+      </div>
+    );
   }
 
+  // Xử lý khi không có user (sau khi đã checkAuth xong)
   if (!user) {
-    return <div className="p-6 text-center">Vui lòng đăng nhập</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-64 text-gray-500">
+        <p className="mb-4">Vui lòng đăng nhập để xem thông tin</p>
+        <button 
+          onClick={() => window.location.href = '/login'}
+          className="bg-teal-600 text-white px-4 py-2 rounded-lg"
+        >
+          Đến trang đăng nhập
+        </button>
+      </div>
+    );
   }
 
-  /* ================= SAVE PROFILE ================= */
   const handleSave = async () => {
     try {
-      setSaving(true);
-      const res = await axios.put("/profile", {
-        fullName,
-        avatar,
-      });
-      setUser(res.data);
+      setLoading(true);
+      // Chú ý: Route này cũng cần kiểm tra lại với Backend (thường là /users/profile hoặc /profile)
+      await api.put("/user/profile", formData);
+      await checkAuth(); // Cập nhật lại store sau khi lưu
       setEditMode(false);
+      alert("Cập nhật thành công!");
     } catch (err) {
-      console.error("Lỗi cập nhật profile:", err);
+      console.error("Lỗi cập nhật:", err);
+      alert(err.response?.data?.detail || "Không thể cập nhật thông tin!");
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const avatarUrl =
-    avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user.fullName
-    )}&background=0D9488&color=fff&size=200`;
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0D9488&color=fff&size=200`;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-6">
-      <div className="text-center">
-        <img
-          src={avatarUrl}
-          alt="avatar"
-          className="w-28 h-28 rounded-full mx-auto"
-        />
-        <h2 className="mt-4 text-xl font-bold">{user.fullName}</h2>
-        <p className="text-teal-600">{user.role}</p>
+    <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+      <div className="text-center mb-8">
+        <div className="relative inline-block">
+          <img src={avatarUrl} alt="avatar" className="w-32 h-32 rounded-full border-4 border-teal-50 shadow-sm mx-auto object-cover" />
+          {user.is_verified && (
+            <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1 rounded-full border-2 border-white">
+              <Shield size={14} fill="currentColor" />
+            </div>
+          )}
+        </div>
+        <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.full_name}</h2>
+        <div className="flex justify-center gap-2 mt-1">
+          {user.role_names?.map((role) => (
+            <span key={role} className="px-3 py-0.5 bg-teal-50 text-teal-700 text-xs font-semibold rounded-full uppercase tracking-wider">
+              {role}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <div className="space-y-4">
         {!editMode ? (
           <>
-            <Info icon={User} label="Họ tên" value={user.fullName} />
-            <Info icon={Mail} label="Email" value={user.email} />
-            <Info icon={Shield} label="Vai trò" value={user.role} />
-
-            <button
-              onClick={() => setEditMode(true)}
-              className="w-full bg-teal-600 text-white py-2 rounded"
-            >
-              <Edit2 size={16} /> Chỉnh sửa
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Info icon={User} label="Họ và tên" value={user.full_name} />
+              <Info icon={Mail} label="Email hệ thống" value={user.email} />
+              <Info icon={Building} label="Cơ quan/Trường" value={user.affiliation || "Chưa cập nhật"} />
+              <Info icon={Phone} label="Số điện thoại" value={user.phone_number || "Chưa cập nhật"} />
+              <Info icon={Globe} label="Website" value={user.website_url || "Chưa cập nhật"} />
+            </div>
+            <button onClick={() => setEditMode(true)} className="w-full mt-6 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white py-3 rounded-xl transition-all font-bold">
+              <Edit2 size={18} /> Chỉnh sửa hồ sơ
             </button>
           </>
         ) : (
-          <>
-            <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full border p-2 rounded"
-              placeholder="Họ tên"
-            />
-            <input
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              className="w-full border p-2 rounded"
-              placeholder="Avatar URL"
-            />
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 bg-green-600 text-white py-2 rounded"
-              >
-                <Save size={16} /> {saving ? "Đang lưu..." : "Lưu"}
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 gap-4">
+              <InputGroup label="Họ và tên" value={formData.full_name} onChange={(v) => setFormData({...formData, full_name: v})} />
+              <InputGroup label="Cơ quan / Đơn vị" value={formData.affiliation} onChange={(v) => setFormData({...formData, affiliation: v})} />
+              <InputGroup label="Số điện thoại" value={formData.phone_number} onChange={(v) => setFormData({...formData, phone_number: v})} />
+              <InputGroup label="Website cá nhân" value={formData.website_url} onChange={(v) => setFormData({...formData, website_url: v})} />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button onClick={handleSave} disabled={loading} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <Save size={18} /> {loading ? "Đang lưu..." : "Lưu thay đổi"}
               </button>
-
-              <button
-                onClick={() => {
-                  setEditMode(false);
-                  setFullName(user.fullName);
-                  setAvatar(user.avatar || "");
-                }}
-                className="flex-1 bg-gray-200 py-2 rounded"
-              >
-                <X size={16} /> Hủy
+              <button onClick={() => setEditMode(false)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                <X size={18} /> Hủy
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-/* ================= INFO ITEM ================= */
 function Info({ icon: Icon, label, value }) {
   return (
-    <div className="flex gap-3 bg-gray-50 p-3 rounded">
-      <Icon className="text-teal-600" size={18} />
+    <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+      <div className="p-2 bg-white rounded-lg shadow-sm"><Icon className="text-teal-600" size={18} /></div>
       <div>
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="font-medium">{value}</p>
+        <p className="text-xs text-gray-400 font-medium uppercase">{label}</p>
+        <p className="text-gray-800 font-semibold">{value}</p>
       </div>
+    </div>
+  );
+}
+
+function InputGroup({ label, value, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">{label}</label>
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none" />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from infrastructure.databases.postgres import test_connection
 from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller, deadline_controller
@@ -21,6 +23,20 @@ logging.basicConfig(
 )
 
 app = FastAPI(title="UTH-ConfMS API")
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Global handler to return a friendly message when our password confirmation validator fails."""
+    try:
+        errors = exc.errors()
+        for err in errors:
+            msg = err.get("msg")
+            if isinstance(msg, str) and "Mật khẩu xác nhận không khớp" in msg:
+                return JSONResponse(status_code=422, content={"message": "Mật khẩu xác nhận không khớp"})
+    except Exception:
+        pass
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
 @app.on_event("startup")

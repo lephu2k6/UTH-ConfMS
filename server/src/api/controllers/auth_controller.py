@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status ,BackgroundTasks, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, status ,BackgroundTasks
 
 from api.schemas.auth_schema import (
     RegisterRequest,
@@ -29,24 +27,6 @@ from dependency_container import (
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
-
-@router.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Convert specific validation errors (like password confirmation mismatch)
-    into a simple, client-friendly JSON message.
-    """
-    try:
-        errors = exc.errors()
-        # Search for our custom message raised in the validator
-        for err in errors:
-            msg = err.get("msg")
-            if isinstance(msg, str) and "Mật khẩu xác nhận không khớp" in msg:
-                return JSONResponse(status_code=422, content={"message": "Mật khẩu xác nhận không khớp"})
-    except Exception:
-        pass
-    # Fallback: return default validation detail
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
 @router.post("/register", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)

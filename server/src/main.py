@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.databases.postgres import test_connection
-from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller
+from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller, deadline_controller
 
 from infrastructure.models import (
     user_model,
@@ -26,6 +26,14 @@ app = FastAPI(title="UTH-ConfMS API")
 @app.on_event("startup")
 async def on_startup():
     await test_connection()
+    # Start background deadline manager
+    try:
+        from services.deadline.deadline_manager import start_deadline_manager_in_background
+
+        await start_deadline_manager_in_background()
+    except Exception:
+        # don't fail startup if background task couldn't be started
+        pass
 
     
 app.add_middleware(
@@ -43,6 +51,7 @@ app.include_router(auth_controller.router)
 app.include_router(user_controller.router)
 app.include_router(audit_log_controller.router)
 app.include_router(conference_controller.router)
+app.include_router(deadline_controller.router)
 
 
 

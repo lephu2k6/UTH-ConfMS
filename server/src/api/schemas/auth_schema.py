@@ -6,7 +6,10 @@ class RegisterRequest(BaseModel):
     full_name: str
     email: EmailStr
     password: str
-    password_confirmation: str
+    # accept both `password_confirmation` and camelCase `passwordConfirmation`
+    password_confirmation: str = Field(..., alias="passwordConfirmation")
+
+    model_config = ConfigDict(populate_by_name=True)
     
     @model_validator(mode='after')
     def passwords_match(self):

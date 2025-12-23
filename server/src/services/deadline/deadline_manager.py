@@ -26,11 +26,11 @@ class DeadlineManager:
         self.check_interval = check_interval_seconds
         self.email_service = EmailService()
 
-    def _get_all_active_user_emails(self, db: Session) -> List[str]:
+    def _get_all_active_user_emails(self, db: Session) -> List[str]: # type: ignore
         users = db.query(UserModel).filter(UserModel.is_active == True).all()
         return [u.email for u in users if u.email]
 
-    def _get_non_submitter_emails_for_conference(self, db: Session, conference: ConferenceModel) -> List[str]:
+    def _get_non_submitter_emails_for_conference(self, db: Session, conference: ConferenceModel) -> List[str]: # type: ignore
         # Find all user ids who have submitted in this conference
         submitted_user_ids = set()
         for track in conference.tracks:

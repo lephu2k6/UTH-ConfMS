@@ -15,6 +15,9 @@ import ForgotPassword from "../../features/auth/pages/ForgotPassword";
 import AuthorProfile from "../../features/auth/pages/AuthorProfile";
 import SmtpConfig from "../../features/auth/pages/SmtpConfig";
 import DeadlineTrackConfig from "../../features/auth/pages/DeadlineTrackConfig";
+import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
+import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
+
 
 
 export default function AppRouter() {
@@ -31,8 +34,11 @@ export default function AppRouter() {
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
                     <Route path="profile" element={<AuthorProfile />} />
+                    <Route path="audit-logs" element={<auditLogs/>} />
                     <Route path="smtp-config" element={<SmtpConfig />} />
                     <Route path="deadline-config" element={<DeadlineTrackConfig />} />
+                    <Route path="track-topic" element={<TrackTopicManagement />} />
+                    <Route path="submission" element={<PaperSubmissionPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

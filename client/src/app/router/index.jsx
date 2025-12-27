@@ -15,6 +15,10 @@ import ForgotPassword from "../../features/auth/pages/ForgotPassword";
 import AuthorProfile from "../../features/auth/pages/AuthorProfile";
 import SmtpConfig from "../../features/auth/pages/SmtpConfig";
 import DeadlineTrackConfig from "../../features/auth/pages/DeadlineTrackConfig";
+<<<<<<< Updated upstream
+=======
+import ConferenceList from "../../features/auth/pages/ConferenceList";
+>>>>>>> Stashed changes
 import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
 import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
 
@@ -37,6 +41,10 @@ export default function AppRouter() {
                     <Route path="audit-logs" element={<auditLogs/>} />
                     <Route path="smtp-config" element={<SmtpConfig />} />
                     <Route path="deadline-config" element={<DeadlineTrackConfig />} />
+<<<<<<< Updated upstream
+=======
+                    <Route path="conference-list" element={<ConferenceList />} />
+>>>>>>> Stashed changes
                     <Route path="track-topic" element={<TrackTopicManagement />} />
                     <Route path="submission" element={<PaperSubmissionPage />} />
                 </Route>

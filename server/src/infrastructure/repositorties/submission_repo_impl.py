@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from infrastructure.models.submission_model import SubmissionModel
+from infrastructure.models.submission_model import SubmissionModel, SubmissionAuthorModel
 from infrastructure.repositories_interfaces.submission_repository import SubmissionRepository
 
 
@@ -21,6 +21,15 @@ class SubmissionRepositoryImpl(SubmissionRepository):
 
     def get_all(self):
         return self.db.query(SubmissionModel).all()
+
+    def get_by_author(self, user_id: int):
+        # Join with submission_authors to find submissions where the user is an author
+        return (
+            self.db.query(SubmissionModel)
+            .join(SubmissionAuthorModel, SubmissionModel.id == SubmissionAuthorModel.submission_id)
+            .filter(SubmissionAuthorModel.user_id == user_id)
+            .all()
+        )
 
     def update(self, submission_id: int, data: dict):
         submission = self.get_by_id(submission_id)

@@ -7,6 +7,7 @@ from api.schemas.submission_schema import (
 )
 
 from dependency_container import get_submission_repo
+from infrastructure.security.auth_dependencies import get_current_user
 from services.submission.get_submission import GetSubmissionService
 from services.submission.list_submissions import ListSubmissionsService
 from services.submission.edit_submission import EditSubmissionService
@@ -19,6 +20,15 @@ router = APIRouter(prefix="/submissions", tags=["Submissions"])
 @router.get("/", response_model=List[SubmissionResponseSchema])
 def list_submissions(repo=Depends(get_submission_repo)):
     return ListSubmissionsService(repo).execute()
+
+
+@router.get("/me", response_model=List[SubmissionResponseSchema])
+def list_my_submissions(
+    current_user=Depends(get_current_user),
+    repo=Depends(get_submission_repo),
+):
+    # Returns submissions where current_user is an author
+    return repo.get_by_author(current_user.id)
 
 
 @router.get("/{submission_id}", response_model=SubmissionResponseSchema)

@@ -13,6 +13,10 @@ class SubmissionRepository(ABC):
         pass
 
     @abstractmethod
+    def get_by_author(self, user_id: int) -> List[Any]:
+        pass
+
+    @abstractmethod
     def update(self, submission_id: int, data: dict) -> Any:
         pass
 

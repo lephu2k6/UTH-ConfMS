@@ -1,11 +1,21 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, Plus, ArrowLeft } from "lucide-react";
+import {
+  Search,
+  Plus,
+  ArrowLeft,
+  Lock,
+  Unlock,
+} from "lucide-react";
 
-export default function Conference() {
-  const [page, setPage] = useState("list"); // list | create | edit
+/* ===== MOCK ROLE ===== */
+const USER_ROLE = "ADMIN"; // ADMIN | ORGANIZER | REVIEWER
+
+export default function ConferenceMain() {
+  const [page, setPage] = useState("list");
+  // list | create | edit | openclose | validate
+
   const [search, setSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);
-
   const menuRef = useRef(null);
 
   /* ================= CLICK OUTSIDE ================= */
@@ -16,10 +26,13 @@ export default function Conference() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* ================= FORM STATE ================= */
+  /* ======================================================
+     =============== CREATE / EDIT FORM ===================
+     ====================================================== */
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -30,21 +43,20 @@ export default function Conference() {
 
   const [errors, setErrors] = useState({});
 
-  const validate = () => {
+  const validateCreateEdit = () => {
     const newErrors = {};
     if (!form.name) newErrors.name = "Conference name is required";
     if (!form.submissionDeadline)
       newErrors.submissionDeadline = "Submission deadline is required";
     if (!form.reviewDeadline)
       newErrors.reviewDeadline = "Review deadline is required";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleCreateEditSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateCreateEdit()) return;
 
     alert(
       page === "create"
@@ -53,213 +65,366 @@ export default function Conference() {
     );
   };
 
-  /* ================= PAGE CONTENT ================= */
+  /* ======================================================
+     =============== OPEN / CLOSE ==========================
+     ====================================================== */
+  const [conferenceStatus, setConferenceStatus] =
+    useState("OPEN");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const isOpen = conferenceStatus === "OPEN";
+
+  const handleToggleConference = () => {
+    setShowConfirm(true);
+  };
+
+  const confirmToggleConference = () => {
+    setConferenceStatus(isOpen ? "CLOSED" : "OPEN");
+    setShowConfirm(false);
+  };
+
+  /* ======================================================
+     =============== VALIDATE & PERMISSION ================
+     ====================================================== */
+  const [validateForm, setValidateForm] = useState({
+    name: "",
+    submissionDeadline: "",
+    reviewDeadline: "",
+  });
+  const [validateErrors, setValidateErrors] = useState({});
+
+  const hasPermission =
+    USER_ROLE === "ADMIN" || USER_ROLE === "ORGANIZER";
+
+  const validatePermissionForm = () => {
+    const newErrors = {};
+    if (!validateForm.name.trim())
+      newErrors.name = "Tên hội nghị không được để trống";
+    if (!validateForm.submissionDeadline)
+      newErrors.submissionDeadline = "Cần chọn hạn nộp bài";
+    if (!validateForm.reviewDeadline)
+      newErrors.reviewDeadline = "Cần chọn hạn phản biện";
+    setValidateErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleValidateSubmit = (e) => {
+    e.preventDefault();
+    if (!hasPermission) return;
+    if (!validatePermissionForm()) return;
+    alert("✔️ Form hợp lệ & có quyền (UI demo)");
+  };
+
+  /* ======================================================
+     ================= RENDER PAGE ========================
+     ====================================================== */
   const renderContent = () => {
-    /* ===== LIST ===== */
+    /* ================= LIST ================= */
     if (page === "list") {
       return (
         <div className="bg-white rounded-xl shadow p-6">
-          {/* TITLE + ACTION */}
-          <div className="flex flex-col md:flex-row md:justify-between gap-4 mb-6">
+          <div className="flex justify-between mb-6">
             <h2 className="text-xl font-bold text-[#008689]">
               Conference List
             </h2>
 
-            <div className="flex items-center gap-3">
-              {/* SEARCH */}
-              <div className="relative w-full md:w-80">
-                <Search
-                  size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search conference..."
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#008689]"
-                />
-              </div>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="flex items-center gap-2 bg-[#008689] text-white px-4 py-2 rounded-lg"
+              >
+                <Plus size={18} />
+                Action
+              </button>
 
-              {/* ACTION MENU */}
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center gap-2 bg-[#008689] text-white px-4 py-2 rounded-lg hover:opacity-90"
-                >
-                  <Plus size={18} />
-                  Action
-                </button>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow border z-50">
+                  <button
+                    onClick={() => {
+                      setPage("create");
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Create Conference
+                  </button>
 
-                {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow border z-50">
-                    <button
-                      onClick={() => {
-                        setForm({
-                          name: "",
-                          description: "",
-                          submissionDeadline: "",
-                          reviewDeadline: "",
-                          status: "OPEN",
-                        });
-                        setPage("create");
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                    >
-                      ConferenceCreate
-                    </button>
+                  <button
+                    onClick={() => {
+                      setPage("edit");
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Edit Conference
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setPage("edit");
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                    >
-                      ConferenceEdit
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={() => {
+                      setPage("openclose");
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Open / Close Conference
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPage("validate");
+                      setShowMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                  >
+                    Validate Form & Permission
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* TABLE */}
-          <table className="w-full border-collapse">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-3 text-left">ID</th>
-                <th className="p-3 text-left">Conference Name</th>
-                <th className="p-3 text-center">Submission</th>
-                <th className="p-3 text-center">Review</th>
-                <th className="p-3 text-center">Status</th>
-                <th className="p-3 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colSpan="6" className="p-6 text-center text-gray-500 italic">
-                  Chưa có dữ liệu conference
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="border rounded-lg p-6 text-center text-gray-500 italic">
+            Conference data is not available.
+          </div>
         </div>
       );
     }
 
-    /* ===== CREATE / EDIT ===== */
-    return (
-      <div className="flex justify-center">
-        <div className="bg-white rounded-xl shadow p-6 w-full max-w-3xl">
+    /* ================= OPEN / CLOSE ================= */
+    if (page === "openclose") {
+      return (
+        <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto">
           <button
             onClick={() => setPage("list")}
-            className="flex items-center gap-2 mb-4 text-[#008689] hover:underline"
+            className="text-[#008689] mb-4 hover:underline"
           >
-            <ArrowLeft size={18} />
-            Quay về Conference
+            ← Back to Conference
           </button>
 
           <h2 className="text-xl font-bold text-[#008689] mb-6">
-            {page === "create" ? "Create Conference" : "Edit Conference"}
+            Open / Close Conference
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block font-medium mb-1">
-                Conference Name
-              </label>
-              <input
-                value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
+          <div className="border rounded-lg p-6 text-center text-gray-500 italic mb-6">
+            No data available
+          </div>
+
+          <div className="flex justify-between border p-4 rounded-lg">
+            <span>
+              Status:{" "}
+              <b
+                className={
+                  isOpen ? "text-green-600" : "text-red-500"
                 }
-                className="w-full border rounded-lg px-3 py-2"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.name}
-                </p>
+              >
+                {conferenceStatus}
+              </b>
+            </span>
+
+            <button
+              disabled={USER_ROLE !== "ADMIN"}
+              onClick={handleToggleConference}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${
+                isOpen ? "bg-red-500" : "bg-green-500"
+              }`}
+            >
+              {isOpen ? (
+                <>
+                  <Lock size={16} /> Close
+                </>
+              ) : (
+                <>
+                  <Unlock size={16} /> Open
+                </>
               )}
-            </div>
+            </button>
+          </div>
 
-            <div>
-              <label className="block font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                rows="4"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">
-                  Submission Deadline
-                </label>
-                <input
-                  type="date"
-                  value={form.submissionDeadline}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      submissionDeadline: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1">
-                  Review Deadline
-                </label>
-                <input
-                  type="date"
-                  value={form.reviewDeadline}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      reviewDeadline: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg px-3 py-2"
-                />
+          {showConfirm && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-xl w-96">
+                <h3 className="font-bold mb-4">Confirm</h3>
+                <p className="mb-6">
+                  Do you want{" "}
+                  <b>{isOpen ? "đóng" : "mở"}</b> this conference
+no?
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    className="border px-4 py-2 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmToggleConference}
+                    className="bg-[#008689] text-white px-4 py-2 rounded-lg"
+                  >
+                    Confirm
+                  </button>
+                </div>
               </div>
             </div>
+          )}
+        </div>
+      );
+    }
 
-            <div>
-              <label className="block font-medium mb-1">Status</label>
-              <select
-                value={form.status}
-                onChange={(e) =>
-                  setForm({ ...form, status: e.target.value })
-                }
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="OPEN">Open</option>
-                <option value="CLOSED">Closed</option>
-              </select>
-            </div>
+    /* ================= VALIDATE ================= */
+    if (page === "validate") {
+      return (
+        <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto">
+          <button
+            onClick={() => setPage("list")}
+            className="text-[#008689] mb-4 hover:underline"
+          >
+            ← Back to Conference
+          </button>
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-[#008689] text-white px-6 py-2 rounded-lg"
-              >
-                {page === "create" ? "Create" : "Update"}
-              </button>
-            </div>
+          <h2 className="text-xl font-bold text-[#008689] mb-6">
+            Validate Form & Permission
+          </h2>
+
+          <p className="mb-4">
+            <b>User Role:</b>{" "}
+            <span className="text-blue-600">{USER_ROLE}</span>
+          </p>
+
+          <form
+            onSubmit={handleValidateSubmit}
+            className="space-y-4"
+          >
+            <input
+              placeholder="Conference name"
+              disabled={!hasPermission}
+              value={validateForm.name}
+              onChange={(e) =>
+                setValidateForm({
+                  ...validateForm,
+                  name: e.target.value,
+                })
+              }
+              className="w-full border px-3 py-2 rounded-lg"
+            />
+            {validateErrors.name && (
+              <p className="text-red-500 text-sm">
+                {validateErrors.name}
+              </p>
+            )}
+
+            <input
+              type="date"
+              disabled={!hasPermission}
+              value={validateForm.submissionDeadline}
+              onChange={(e) =>
+                setValidateForm({
+                  ...validateForm,
+                  submissionDeadline: e.target.value,
+                })
+              }
+              className="w-full border px-3 py-2 rounded-lg"
+            />
+
+            <input
+              type="date"
+              disabled={!hasPermission}
+              value={validateForm.reviewDeadline}
+              onChange={(e) =>
+                setValidateForm({
+                  ...validateForm,
+                  reviewDeadline: e.target.value,
+                })
+              }
+              className="w-full border px-3 py-2 rounded-lg"
+            />
+
+            <button
+              disabled={!hasPermission}
+              className="bg-[#008689] text-white px-6 py-2 rounded-lg"
+            >
+              Save Conference
+            </button>
           </form>
         </div>
+      );
+    }
+
+    /* ================= CREATE / EDIT ================= */
+    return (
+      <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto">
+        <button
+          onClick={() => setPage("list")}
+          className="text-[#008689] mb-4 hover:underline"
+        >
+          ← Back to Conference
+        </button>
+
+        <h2 className="text-xl font-bold text-[#008689] mb-6">
+          {page === "create"
+            ? "Create Conference"
+            : "Edit Conference"}
+        </h2>
+
+        <form
+          onSubmit={handleCreateEditSubmit}
+          className="space-y-4"
+        >
+          <input
+            placeholder="Conference name"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+            className="w-full border px-3 py-2 rounded-lg"
+          />
+
+          <textarea
+            rows="3"
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                description: e.target.value,
+              })
+            }
+            className="w-full border px-3 py-2 rounded-lg"
+          />
+
+          <input
+            type="date"
+            value={form.submissionDeadline}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                submissionDeadline: e.target.value,
+              })
+            }
+            className="w-full border px-3 py-2 rounded-lg"
+          />
+
+          <input
+            type="date"
+            value={form.reviewDeadline}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                reviewDeadline: e.target.value,
+              })
+            }
+            className="w-full border px-3 py-2 rounded-lg"
+          />
+
+          <button className="bg-[#008689] text-white px-6 py-2 rounded-lg">
+            {page === "create" ? "Create" : "Update"}
+          </button>
+        </form>
       </div>
     );
   };
 
-  return <div className="min-h-screen bg-gray-100 p-6">{renderContent()}</div>;
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      {renderContent()}
+    </div>
+  );
 }

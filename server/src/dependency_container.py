@@ -127,3 +127,12 @@ def get_email_verification_service(
     email_service: EmailService = Depends(get_email_service),
 ) -> AuthCommunicationService:
     return AuthCommunicationService(user_repo, db_session, jwt_service, email_service)
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
+from infrastructure.databases.postgres import get_db
+from infrastructure.repositorties.submission_repo_impl import SubmissionRepositoryImpl  # type: ignore
+
+
+def get_submission_repo(db: Session = Depends(get_db)):
+    return SubmissionRepositoryImpl(db)

@@ -1,0 +1,21 @@
+from typing import List, Optional, Any
+from abc import ABC, abstractmethod
+
+
+class SubmissionRepository(ABC):
+
+    @abstractmethod
+    def get_by_id(self, submission_id: int) -> Optional[Any]:
+        pass
+
+    @abstractmethod
+    def get_all(self) -> List[Any]:
+        pass
+
+    @abstractmethod
+    def update(self, submission_id: int, data: dict) -> Any:
+        pass
+
+    @abstractmethod
+    def delete(self, submission_id: int) -> None:
+        pass

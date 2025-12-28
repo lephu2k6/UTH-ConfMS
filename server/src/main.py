@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from infrastructure.databases.postgres import test_connection
-from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller
+from api.controllers import auth_controller, user_controller, audit_log_controller, conference_controller,submission_controller
 
 from infrastructure.models import (
     user_model,
@@ -47,6 +47,7 @@ app.include_router(auth_controller.router)
 app.include_router(user_controller.router)
 app.include_router(audit_log_controller.router)
 app.include_router(conference_controller.router)
+app.include_router(submission_controller.router)
 
 
 

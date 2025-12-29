@@ -18,6 +18,7 @@ import DeadlineTrackConfig from "../../features/auth/pages/DeadlineTrackConfig";
 import ConferenceList from "../../features/auth/pages/ConferenceList";
 import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
 import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
+import AssignmentPage from "../../features/assignment/AssignmentPage";
 
 
 
@@ -41,6 +42,7 @@ export default function AppRouter() {
                     <Route path="conference-list" element={<ConferenceList />} />
                     <Route path="track-topic" element={<TrackTopicManagement />} />
                     <Route path="submission" element={<PaperSubmissionPage />} />
+                    <Route path="assignments" element={<AssignmentPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

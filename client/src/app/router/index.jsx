@@ -18,6 +18,7 @@ import DeadlineTrackConfig from "../../features/auth/pages/DeadlineTrackConfig";
 import ConferenceList from "../../features/auth/pages/ConferenceList";
 import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
 import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
+import AuditLog from "../../features/dashboard/pages/AuditLogs";
 
 
 
@@ -29,13 +30,13 @@ export default function AppRouter() {
                     <Route path="/" element={<CfpPublicPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path= "/forgotpassword" element = {<ForgotPassword />} />
-                   
+                    <Route path="/forgotpassword" element={<ForgotPassword />} />
+
                 </Route>
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
                     <Route path="profile" element={<AuthorProfile />} />
-                    <Route path="audit-logs" element={<auditLogs/>} />
+                    <Route path="audit-logs" element={<AuditLog />} />
                     <Route path="smtp-config" element={<SmtpConfig />} />
                     <Route path="deadline-config" element={<DeadlineTrackConfig />} />
                     <Route path="conference-list" element={<ConferenceList />} />

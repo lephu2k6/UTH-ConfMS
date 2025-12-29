@@ -20,7 +20,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="flex flex-col h-screen w-full font-sans">
-      
+
       {/* HEADER */}
       <header className="bg-white px-5 py-2.5 border-b border-gray-300 h-20 flex items-center">
         <img
@@ -40,7 +40,7 @@ const ForgotPassword = () => {
 
         {/* CONTAINER */}
         <div className="relative z-10 bg-white rounded-[30px] shadow-2xl w-[760px] max-w-[95%] overflow-hidden">
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2">
 
             {/* LEFT - INFO PANEL */}
@@ -58,17 +58,17 @@ const ForgotPassword = () => {
 
             {/* RIGHT - FORM PANEL */}
             <div className="px-10 py-12 text-center">
-              
+
               <h1 className="text-[28px] font-medium text-[#2c5f68] mb-1">
                 Khôi phục mật khẩu
               </h1>
-              
+
               <h2 className="text-[18px] font-bold uppercase text-[#c62828] mb-8">
                 Hệ thống hội nghị
               </h2>
 
               <form onSubmit={handleSendRequest} className="space-y-6 text-left">
-                
+
                 {/* EMAIL INPUT */}
                 <div className="space-y-1.5">
                   <label className="block text-[13px] font-semibold text-gray-600 ml-1">
@@ -83,7 +83,7 @@ const ForgotPassword = () => {
                       focus:border-[#00796b] focus:ring-2 focus:ring-[#00796b]/30 transition-all"
                     required
                   />
-                  
+
                 </div>
 
                 {/* SUBMIT BUTTON */}
@@ -100,7 +100,7 @@ const ForgotPassword = () => {
 
               {/* FOOTER LINK */}
               <div className="mt-8 text-center">
-                <Link to="/" className="text-blue-600 font-bold text-[13px] hover:underline flex items-center justify-center gap-2">
+                <Link to="/login" className="text-blue-600 font-bold text-[13px] hover:underline flex items-center justify-center gap-2">
                   <span>←</span> Quay lại đăng nhập
                 </Link>
               </div>

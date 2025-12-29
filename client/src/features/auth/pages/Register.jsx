@@ -5,7 +5,7 @@ import Header from "../../../components/Header";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  
+
   // 1. Khai báo state khớp hoàn toàn với key của Backend
   const [formData, setFormData] = useState({
     full_name: "",
@@ -20,9 +20,9 @@ const RegisterPage = () => {
 
   // 3. Hàm xử lý thay đổi input dùng chung
   const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
   };
 
@@ -67,7 +67,7 @@ const RegisterPage = () => {
 
         <div className="relative z-10 bg-white rounded-[30px] shadow-xl w-[760px] max-w-[95%] overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            
+
             {/* PHẦN TRÁI: LOGO & GIỚI THIỆU */}
             <div className="hidden md:flex flex-col items-center justify-center bg-[#e0f2f1] p-8">
               <img
@@ -152,7 +152,7 @@ const RegisterPage = () => {
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                   Đã có tài khoản?{" "}
-                  <Link to="/" className="text-blue-600 font-bold hover:underline">
+                  <Link to="/login" className="text-blue-600 font-bold hover:underline">
                     Đăng nhập
                   </Link>
                 </p>

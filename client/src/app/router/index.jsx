@@ -19,6 +19,8 @@ import ConferenceList from "../../features/auth/pages/ConferenceList";
 import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
 import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
 import AuditLog from "../../features/dashboard/pages/AuditLogs";
+import ReviewForm from "../../features/reviewer/ReviewForm";
+import AssignedPaper from "../../features/reviewer/AssignedPapers";
 
 
 
@@ -42,6 +44,8 @@ export default function AppRouter() {
                     <Route path="conference-list" element={<ConferenceList />} />
                     <Route path="track-topic" element={<TrackTopicManagement />} />
                     <Route path="submission" element={<PaperSubmissionPage />} />
+                    <Route path="review-form" element={<ReviewForm />} />
+                    <Route path="Assigned-paper" element={<AssignedPaper />} />
                 </Route>
             </Routes>
         </BrowserRouter>

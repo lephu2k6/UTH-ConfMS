@@ -1,14 +1,41 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from infrastructure.models.submission_model import SubmissionModel, SubmissionAuthorModel
+from infrastructure.models.submission_model import SubmissionModel, SubmissionAuthorModel , SubmissionFileModel
 from infrastructure.repositories_interfaces.submission_repository import SubmissionRepository
 
 
 class SubmissionRepositoryImpl(SubmissionRepository):
     def __init__(self, db: Session):
         self.db = db
+    def create(self, data: dict):
+        new_submission = SubmissionModel(
+            title=data.get('title'),
+            abstract=data.get('abstract'),
+            track_id=data.get('track_id'),
+            status="Submitted"
+        )
+        self.db.add(new_submission)
+        self.db.flush()
 
+        new_file = SubmissionFileModel(
+            submission_id=new_submission.id,
+            file_path=data.get('file_url'),
+            mime_type="application/pdf",
+            write_type="Initial",
+            version=1
+        )
+        self.db.add(new_file)
+        new_author = SubmissionAuthorModel(
+        submission_id=new_submission.id,
+            user_id=data.get('author_id'),
+            order_index=1,
+            is_corresponding=True
+        )
+        self.db.add(new_author)
+        self.db.commit()
+        self.db.refresh(new_submission)
+        return new_submission
     def get_by_id(self, submission_id: int):
         submission = self.db.query(SubmissionModel).filter(
             SubmissionModel.id == submission_id
@@ -23,7 +50,6 @@ class SubmissionRepositoryImpl(SubmissionRepository):
         return self.db.query(SubmissionModel).all()
 
     def get_by_author(self, user_id: int):
-        # Join with submission_authors to find submissions where the user is an author
         return (
             self.db.query(SubmissionModel)
             .join(SubmissionAuthorModel, SubmissionModel.id == SubmissionAuthorModel.submission_id)

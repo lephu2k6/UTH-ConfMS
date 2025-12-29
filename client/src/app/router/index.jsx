@@ -38,7 +38,7 @@ export default function AppRouter() {
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<Home />} />
                     <Route path="profile" element={<AuthorProfile />} />
-                    <Route path="audit-logs" element={<AuditLog />} />
+                    <Route path="audit-logs" element={<auditLogs/>} />
                     <Route path="smtp-config" element={<SmtpConfig />} />
                     <Route path="deadline-config" element={<DeadlineTrackConfig />} />
                     <Route path="conference-list" element={<ConferenceList />} />

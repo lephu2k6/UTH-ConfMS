@@ -10,8 +10,9 @@ from infrastructure.repositorties.audit_log_repo_impl import AuditLogRepositoryI
 from infrastructure.repositories_interfaces.audit_log_repository import AuditLogRepository
 from infrastructure.repositorties.conference_repo_impl import ConferenceRepositoryImpl 
 from infrastructure.repositories_interfaces.conference_repository import ConferenceRepository
+from infrastructure.repositorties.conference_repo_impl import ConferenceRepositoryImpl
 from infrastructure.security.jwt import JWTService
-# from infrastructure.email.email_service import EmailService
+
 
 # Services Imports
 from services.auth.login_service import LoginService
@@ -136,3 +137,5 @@ from infrastructure.repositorties.submission_repo_impl import SubmissionReposito
 
 def get_submission_repo(db: Session = Depends(get_db)):
     return SubmissionRepositoryImpl(db)
+def get_conference_repo(db: Session = Depends(get_db)):
+    return ConferenceRepositoryImpl(db)

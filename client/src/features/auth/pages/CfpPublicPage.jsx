@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Calendar, BookOpen, Layers } from "lucide-react";
+import Header from "../../../components/Header";
 
 export default function CfpPublicPage() {
   /* ================= STATE ================= */
@@ -25,16 +26,7 @@ export default function CfpPublicPage() {
   return (
     <div className="w-full min-h-screen overflow-x-hidden bg-gray-50">
 
-      {/* ================= HEADER ================= */}
-      <header className="w-full bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
-          <img
-            src="https://portal.ut.edu.vn/images/logo_full.png"
-            alt="UTH Logo"
-            className="h-14 object-contain"
-          />
-        </div>
-      </header>
+      <Header />
 
       {/* ================= HERO ================= */}
     <section

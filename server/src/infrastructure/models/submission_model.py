@@ -43,13 +43,10 @@ class SubmissionAuthorModel(Base):
     __tablename__ = "submission_authors"
     submission_id = Column(ForeignKey("submissions.id"), primary_key=True)
     user_id = Column(ForeignKey("users.id"), primary_key=True)
-    
-    # Author Metadata (Từ ERD)
     order_index = Column(Integer)
     is_corresponding = Column(Boolean)
     country = Column(String)
     
-    # Relationships
     submission = relationship("SubmissionModel", back_populates="authors")
     user = relationship("UserModel") 
 
@@ -59,13 +56,12 @@ class SubmissionFileModel(Base):
     id = Column(Integer, primary_key=True)
     submission_id = Column(ForeignKey("submissions.id"), nullable=False)
     
-    # File Info
     file_path = Column(String, nullable=False)
     mime_type = Column(String)
-    write_type = Column(String) # e.g., 'Initial', 'Camera-Ready'
+    write_type = Column(String) 
     version = Column(Integer)
     
-    # Relationships
+
     submission = relationship(
         "SubmissionModel", 
         back_populates="files",

@@ -12,18 +12,23 @@ from api.schemas.auth_schema import (
     ResendVerificationRequest,
     ResetPasswordConfirmRequest
 )
+from api.schemas.user_schema import UserProfileUpdateRequest, UserPasswordUpdateRequest
 from services.auth.login_service import LoginService
 from services.auth.register_service import RegisterService
 from services.auth.create_initial_chair import CreateInitialChairService
 from services.auth.refresh_service import RefreshTokenService
 from services.auth.auth_communication_service import AuthCommunicationService
-from domain.exceptions import DuplicateUserError, AuthenticationError, InitialChairExistsError
+from services.user.user_management_service import UserManagementService
+from domain.exceptions import DuplicateUserError, AuthenticationError, InitialChairExistsError, NotFoundError
+from infrastructure.security.auth_dependencies import get_current_user
+from infrastructure.models.user_model import UserModel
 from dependency_container import (
     get_login_service, 
     get_register_service, 
     get_create_chair_service,
     get_refresh_service, 
-    get_email_verification_service
+    get_email_verification_service,
+    get_user_management_service,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -53,12 +58,12 @@ async def login_for_access_token_endpoint(
     request: LoginRequest, login_service: LoginService = Depends(get_login_service)
 ):
     try:
-        access_token, refresh_token = await login_service.authenticate_and_get_tokens( 
+        access_token, refresh_token, user = await login_service.authenticate_and_get_tokens( 
             email=request.email, 
             password=request.password
         )
-        # trả về accesstoken và refreshtoken
-        return TokenResponse(access_token=access_token, refresh_token=refresh_token) 
+        # trả về accesstoken, refreshtoken và thông tin user
+        return TokenResponse(access_token=access_token, refresh_token=refresh_token, user=UserResponse.model_validate(user)) 
         
     except AuthenticationError as e:
         raise HTTPException(
@@ -152,6 +157,40 @@ async def send_document(
         file_path
     )
     return {"message": "Tài liệu đang được gửi đến email của bạn."}
+
+
+@router.put("/profile", response_model=UserResponse)
+async def update_my_profile_endpoint(
+    request: UserProfileUpdateRequest,
+    user_service: UserManagementService = Depends(get_user_management_service),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Cập nhật profile của user đã đăng nhập."""
+    try:
+        user = await user_service.update_profile(
+            current_user.id,
+            full_name=request.full_name,
+            affiliation=request.affiliation,
+            phone_number=request.phone_number,
+            website_url=request.website_url,
+            avatar_url=request.avatar_url,
+        )
+        return UserResponse.model_validate(user)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.put("/me/password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_my_password_endpoint(
+    request: UserPasswordUpdateRequest,
+    user_service: UserManagementService = Depends(get_user_management_service),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Đổi mật khẩu cho user đã đăng nhập."""
+    try:
+        await user_service.update_user_password(current_user.id, request.new_password)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.post("/initial-chair-setup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_initial_chair_endpoint(

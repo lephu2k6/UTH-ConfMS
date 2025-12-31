@@ -8,6 +8,7 @@ from api.schemas.user_schema import (
     UserRoleUpdateRequest,
     UserResponse,
     UserListResponse,
+    UserProfileUpdateRequest,
 )
 from services.user.user_management_service import UserManagementService
 from infrastructure.models.user_model import UserModel
@@ -47,6 +48,27 @@ async def get_current_user_info(
 ):
     """Lấy thông tin người dùng hiện tại."""
     return UserResponse.model_validate(current_user)
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_my_profile(
+    request: UserProfileUpdateRequest,
+    user_service: UserManagementService = Depends(get_user_management_service),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Cập nhật profile của chính user."""
+    try:
+        user = await user_service.update_profile(
+            current_user.id,
+            full_name=request.full_name,
+            affiliation=request.affiliation,
+            phone_number=request.phone_number,
+            website_url=request.website_url,
+            avatar_url=request.avatar_url,
+        )
+        return UserResponse.model_validate(user)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.get("/{user_id}", response_model=UserResponse)

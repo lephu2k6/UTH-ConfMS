@@ -11,7 +11,7 @@ class ReviewAssignmentModel(Base):
     
     auto_assigned = Column(Boolean, default=False)
     
-    # SỬA LỖI: Định nghĩa cách join với ReviewModel qua cặp bài nộp + người chấm
+    
     review = relationship(
         "ReviewModel", 
         primaryjoin="and_(ReviewAssignmentModel.submission_id == ReviewModel.submission_id, "
@@ -32,12 +32,12 @@ class ReviewModel(Base):
     weakness = Column(String)
     best_paper_recommendation = Column(Boolean, default=False)
     
-    # Ràng buộc đảm bảo mỗi reviewer chỉ có 1 bài review cho 1 submission
+
     __table_args__ = (
         UniqueConstraint('submission_id', 'reviewer_id', name='uq_review_submission_reviewer'),
     )
 
-    # SỬA LỖI: Định nghĩa ngược lại từ Review về Assignment
+
     assignment = relationship(
         "ReviewAssignmentModel", 
         primaryjoin="and_(ReviewModel.submission_id == ReviewAssignmentModel.submission_id, "
@@ -54,7 +54,7 @@ class ReviewQuestionModel(Base):
     __tablename__ = "review_question"
     id = Column(Integer, primary_key=True)
     question = Column(String, nullable=False)
-    type = Column(String) # ví dụ: 'Score', 'Text', 'Choice'
+    type = Column(String) 
     required = Column(Boolean, default=True)
 
 class ReviewAnswerModel(Base):
@@ -82,10 +82,11 @@ class BiddingModel(Base):
     submission_id = Column(ForeignKey("submissions.id"), primary_key=True)
     reviewer_id = Column(ForeignKey("users.id"), primary_key=True)
     
-    bid = Column(String) # ví dụ: 'Yes', 'No', 'Maybe'
+    bid = Column(String) 
     
 class ReviewerExpertiseModel(Base):
     """Chuyên môn (keywords) của Reviewer."""
     __tablename__ = "reviewer_expertise"
-    user_id = Column(ForeignKey("users.id"), primary_key=True)
+    reviewer_id = Column(ForeignKey("users.id"), primary_key=True)
     keyword = Column(String, primary_key=True)
+    level = Column(Integer)

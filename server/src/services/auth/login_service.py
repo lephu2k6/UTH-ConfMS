@@ -31,12 +31,13 @@ class LoginService:
         
         return access_token, refresh_token_plain
 
-    async def authenticate_and_get_tokens(self, email: str, password: str) -> Tuple[str, str]:
+    async def authenticate_and_get_tokens(self, email: str, password: str) -> Tuple[str, str, "UserModel"]:
         user = await self.user_repo.get_by_email(email)
         if not user:
             raise AuthenticationError("Email hoặc mật khẩu không đúng.")
 
-        if not Hasher.verify_password(password, user.hashed_password):
+        stored_hash = getattr(user, "password_hash", None) or getattr(user, "hashed_password", None)
+        if not stored_hash or not Hasher.verify_password(password, stored_hash):
             raise AuthenticationError("Email hoặc mật khẩu không đúng.")
 
         if not user.is_active:
@@ -45,4 +46,5 @@ class LoginService:
         if not user.is_verified:
             raise AuthenticationError("Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư của bạn.")
 
-        return await self.create_tokens(user)
+        access_token, refresh_token_plain = await self.create_tokens(user)
+        return access_token, refresh_token_plain, user

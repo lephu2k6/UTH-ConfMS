@@ -13,17 +13,17 @@ class ConferenceModel(Base):
     description = Column(String)
     website_url = Column(String)
     
-    # Deadlines (Cơ bản)
+
     start_date = Column(DateTime)
     end_date = Column(DateTime)
     submission_deadline = Column(DateTime)
     review_deadline = Column(DateTime)
     
-    # Settings (Cơ bản)
+
     is_open = Column(Boolean, default=True)
     double_blind = Column(Boolean, default=True)
     
-    # Relationships
+
     tracks = relationship("TrackModel", back_populates="conference", lazy="selectin")
     email_templates = relationship("EmailTemplateModel", back_populates="conference")
     lessons = relationship("LessonModel", back_populates="conference")
@@ -36,7 +36,7 @@ class TrackModel(Base):
     name = Column(String, nullable=False)
     max_reviewers = Column(Integer, default=3)
     
-    # Relationships
+
     conference = relationship("ConferenceModel", back_populates="tracks")
     submissions = relationship("SubmissionModel", back_populates="track", lazy="selectin")
 
@@ -45,7 +45,7 @@ class EmailTemplateModel(Base):
     __tablename__ = "email_templates"
     id = Column(Integer, primary_key=True)
     conference_id = Column(ForeignKey("conferences.id"), nullable=False)
-    name = Column(String, nullable=False) # e.g., CFP_INVITE, DECISION_ACCEPT
+    name = Column(String, nullable=False) 
     subject = Column(String)
     body = Column(String)
 
@@ -56,11 +56,8 @@ class LessonModel(Base):
     __tablename__ = "lessons"
     id = Column(Integer, primary_key=True)
     conference_id = Column(ForeignKey("conferences.id"), nullable=False)
-    name = Column(String, nullable=False) # e.g., Oral Session 1, Poster Session A
-    
+    name = Column(String, nullable=False)
     conference = relationship("ConferenceModel", back_populates="lessons")
-    schedule_items = relationship("ScheduleItemModel", back_populates="lesson")
+    schedule_items = relationship("ScheduleItemModel", back_populates="lesson", lazy="selectin")
 
-# Import submission_model ở cuối file để đảm bảo SQLAlchemy có thể resolve relationships
-# Điều này đảm bảo SubmissionModel được đăng ký với SQLAlchemy trước khi TrackModel được sử dụng
-from infrastructure.models import submission_model  # noqa: F401
+from infrastructure.models import submission_model  

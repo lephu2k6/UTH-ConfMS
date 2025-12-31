@@ -48,7 +48,9 @@ class UserManagementService:
         # Tạo user model
         new_user = UserModel(
             email=email,
+            # populate both fields so old code and new fields are consistent
             hashed_password=hashed_password,
+            password_hash=hashed_password,
             full_name=full_name,
             affiliation=affiliation,
             phone_number=phone_number,
@@ -81,7 +83,7 @@ class UserManagementService:
         is_active: Optional[bool] = None,
         is_verified: Optional[bool] = None,
     ) -> UserModel:
-        """Cập nhật thông tin người dùng."""
+        """Cập nhật thông tin người dùng (admin)."""
         user = await self.user_repo.get_by_id(user_id)
         if user is None:
             raise NotFoundError(f"Người dùng với ID {user_id} không tồn tại.")
@@ -105,6 +107,36 @@ class UserManagementService:
         await self.db_session.refresh(updated_user)
         return updated_user
 
+    async def update_profile(
+        self,
+        user_id: int,
+        full_name: Optional[str] = None,
+        affiliation: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        website_url: Optional[str] = None,
+        avatar_url: Optional[str] = None,
+    ) -> UserModel:
+        """Cập nhật profile bởi chính user."""
+        user = await self.user_repo.get_by_id(user_id)
+        if user is None:
+            raise NotFoundError(f"Người dùng với ID {user_id} không tồn tại.")
+
+        if full_name is not None:
+            user.full_name = full_name
+        if affiliation is not None:
+            user.affiliation = affiliation
+        if phone_number is not None:
+            user.phone_number = phone_number
+        if website_url is not None:
+            user.website_url = website_url
+        if avatar_url is not None:
+            user.avatar_url = avatar_url
+
+        updated_user = await self.user_repo.update(user)
+        await self.db_session.commit()
+        await self.db_session.refresh(updated_user)
+        return updated_user
+
     async def update_user_password(self, user_id: int, new_password: str) -> None:
         """Cập nhật mật khẩu người dùng."""
         user = await self.user_repo.get_by_id(user_id)
@@ -113,6 +145,7 @@ class UserManagementService:
 
         hashed_password = Hasher.hash_password(new_password)
         user.hashed_password = hashed_password
+        user.password_hash = hashed_password
         await self.user_repo.update(user)
         await self.db_session.commit()
 

@@ -10,17 +10,17 @@ from alembic import context
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-# Import Base và tất cả models
-from src.infrastructure.databases.postgres import Base
-from src.infrastructure.models.user_model import UserModel
-from src.infrastructure.models import (
-    conference_model,  
+# Import Base và tất cả models using the same package names as the app
+from infrastructure.databases.postgres import Base
+from infrastructure.models.user_model import UserModel
+from infrastructure.models import (
+    conference_model,
     submission_model,
     review_model,
-    system_model
+    system_model,
 )
 
-from src.config import settings
+from config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

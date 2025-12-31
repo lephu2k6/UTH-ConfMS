@@ -29,15 +29,6 @@ class ChairSetupRequest(BaseModel):
     password: str
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    refresh_token: Optional[str] = None 
-    
-    class Config:
-        from_attributes = True
-
-
 class UserResponse(BaseModel):
     id: int
     full_name: Optional[str] = None
@@ -48,6 +39,16 @@ class UserResponse(BaseModel):
     roles: List[str] = Field(default_factory=list, alias="role_names")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    refresh_token: Optional[str] = None
+    user: Optional[UserResponse] = None
+
+    class Config:
+        from_attributes = True
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str

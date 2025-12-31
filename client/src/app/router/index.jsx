@@ -1,52 +1,74 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-//layouts
 import PublicLayout from "../layouts/PublicLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
+import ProtectedRoute from "./ProtectedRoute";
 
-
-//route auth
+// Public
 import CfpPublicPage from "../../features/auth/pages/CfpPublicPage";
 import Login from "../../features/auth/pages/Login";
 import Register from "../../features/auth/pages/Register";
-import Home from "../../features/dashboard/pages/Home";
 import ForgotPassword from "../../features/auth/pages/ForgotPassword";
+
+// Dashboard - Author
+import AuthorDashboard from "../../features/dashboard/AuthorDashboard";
 import AuthorProfile from "../../features/auth/pages/AuthorProfile";
+import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
+
+// Admin / Chair (để sẵn)
 import SmtpConfig from "../../features/auth/pages/SmtpConfig";
 import DeadlineTrackConfig from "../../features/auth/pages/DeadlineTrackConfig";
 import ConferenceList from "../../features/auth/pages/ConferenceList";
 import TrackTopicManagement from "../../features/auth/pages/TrackTopicManagement";
-import PaperSubmissionPage from "../../features/submission/PaperSubmissionPage";
 import PcManagement from "../../features/auth/pages/PcManagement";
-
-
-
+import AuditLogs from "../../features/dashboard/pages/AuditLogs";
 
 export default function AppRouter() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<PublicLayout />}>
-                    <Route path="/" element={<CfpPublicPage />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/forgotpassword" element={<ForgotPassword />} />
+  return (
+    <BrowserRouter>
+      <Routes>
 
-                </Route>
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                    <Route index element={<Home />} />
-                    <Route path="profile" element={<AuthorProfile />} />
-                    <Route path="audit-logs" element={<auditLogs/>} />
-                    <Route path="smtp-config" element={<SmtpConfig />} />
-                    <Route path="deadline-config" element={<DeadlineTrackConfig />} />
-                    <Route path="conference-list" element={<ConferenceList />} />
-                    <Route path="track-topic" element={<TrackTopicManagement />} />
-                    <Route path="submission" element={<PaperSubmissionPage />} />
-                    <Route path="pc-management" element={<PcManagement />} />
+        {/* 🌍 PUBLIC */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<CfpPublicPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+        </Route>
 
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    )
+        {/* 👤 AUTHOR DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowRoles={["authors"]}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AuthorDashboard />} />
+          <Route path="profile" element={<AuthorProfile />} />
+          <Route path="submission" element={<PaperSubmissionPage />} />
+        </Route>
+
+        {/* 🧑‍💼 CHAIR / ADMIN */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowRoles={["ADMIN", "CHAIR"]}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="audit-logs" element={<AuditLogs />} />
+          <Route path="smtp-config" element={<SmtpConfig />} />
+          <Route path="deadline-config" element={<DeadlineTrackConfig />} />
+          <Route path="conference-list" element={<ConferenceList />} />
+          <Route path="track-topic" element={<TrackTopicManagement />} />
+          <Route path="pc-management" element={<PcManagement />} />
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
+  );
 }

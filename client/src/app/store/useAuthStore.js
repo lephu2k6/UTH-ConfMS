@@ -6,18 +6,18 @@ export const useAuthStore = create(
   persist(
     (set, get) => ({
       user: null,
-      isCheckingAuth: true,
+      token: localStorage.getItem("access_token"),
+      role: localStorage.getItem("role"),
+      isAuthenticated: !!localStorage.getItem("access_token"),
       isLoading: false,
 
       checkAuth: async () => {
         set({ isCheckingAuth: true });
-
         const token = localStorage.getItem("access_token");
         if (!token) {
           set({ user: null, isCheckingAuth: false });
           return;
         }
-
         try {
           const res = await api.get("/users/me");
           set({ user: res.data, isCheckingAuth: false });
@@ -27,15 +27,25 @@ export const useAuthStore = create(
         }
       },
 
-      login: async (credentials) => {
-        set({ isLoading: true });
-        const res = await api.post("/auth/login", credentials);
-        localStorage.setItem("access_token", res.data.access_token);
 
-        const userRes = await api.get("/users/me");
-        set({ user: userRes.data, isLoading: false });
-        return userRes.data;
-      },
+      login: async (data) => {
+        set({ isLoading: true });
+        const res = await api.post("/auth/login", data);
+        const { access_token, user } = res.data;
+        const role = user.role_names?.[0]; 
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("role", role);
+
+      set({
+        user,
+        token: access_token,
+        role,
+        isAuthenticated: true,
+        isLoading: false,
+      } );
+
+      return user;
+  },
 
       signup: async (userData) => {
         set({ isLoading: true });

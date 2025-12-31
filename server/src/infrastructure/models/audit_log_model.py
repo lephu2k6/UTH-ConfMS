@@ -46,7 +46,6 @@ class AuditLogModel(Base):
     extra_metadata = Column(JSONB, nullable=True, default={})
     created_at = Column(DateTime, default=func.now(), nullable=False, index=True)
 
-    # Relationship với User
     user = relationship("UserModel", lazy="selectin")
 
     def to_domain_model(self):

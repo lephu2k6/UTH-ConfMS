@@ -15,7 +15,7 @@ class SubmissionResponseSchema(BaseModel):
     id: int
     title: str
     abstract: str
-    status: str
+    status: Optional[str] = None
 
     class Config:
         orm_mode = True

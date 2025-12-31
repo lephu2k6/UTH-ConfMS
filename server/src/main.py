@@ -16,9 +16,10 @@ from infrastructure.models import (
     system_model
 )
 
+
 # Cấu hình logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO, 
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
@@ -31,7 +32,8 @@ app = FastAPI(title="UTH-ConfMS API")
 async def on_startup():
     await test_connection()
 
-    
+ 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], 
@@ -39,6 +41,11 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# last_login middleware: update user.last_login on requests with valid access token
+from api.middleware.last_login_middleware import LastLoginMiddleware
+app.add_middleware(LastLoginMiddleware)
+
 
 
 #router

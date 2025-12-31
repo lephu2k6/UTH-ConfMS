@@ -47,7 +47,9 @@ class AuthCommunicationService:
             raise AuthenticationError("Token không hợp lệ")
 
         user = await self.user_repo.get_by_id(payload["user_id"])
-        user.hashed_password = pwd_context.hash(new_password)
+        new_hashed = pwd_context.hash(new_password)
+        user.hashed_password = new_hashed
+        user.password_hash = new_hashed
         await self.db.commit()
 
     async def send_user_document(

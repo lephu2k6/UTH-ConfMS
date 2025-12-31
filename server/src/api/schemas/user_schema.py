@@ -24,6 +24,15 @@ class UserUpdateRequest(BaseModel):
     is_verified: Optional[bool] = None
 
 
+class UserProfileUpdateRequest(BaseModel):
+    """Fields a regular user can update on their own profile."""
+    full_name: Optional[str] = None
+    affiliation: Optional[str] = None
+    phone_number: Optional[str] = None
+    website_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
 class UserPasswordUpdateRequest(BaseModel):
     new_password: str = Field(..., min_length=6, description="Mật khẩu mới tối thiểu 6 ký tự")
 
@@ -39,6 +48,8 @@ class UserResponse(BaseModel):
     affiliation: Optional[str] = None
     phone_number: Optional[str] = None
     website_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+    last_login: Optional[datetime] = None
     is_verified: bool
     is_active: bool
     roles: List[str] = Field(default_factory=list, alias="role_names")

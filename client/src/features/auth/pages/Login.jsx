@@ -12,19 +12,32 @@ const Login = () => {
   const isLoading = useAuthStore((state) => state.isLoading);
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await login({
-        email: email.trim(), 
-        password: password   
-      });
+  e.preventDefault();
+  try {
+    // Gọi action login từ store
+    const user = await login({
+      email: email.trim(),
+      password: password
+    });
+
+    if (user) {
+      const role = user.role_names?.[0]; 
       
-      navigate("/dashboard"); 
-    } catch (error) {
-      console.error("Lỗi chi tiết:", error.response?.data);
-      alert("Đăng nhập thất bại: Thiếu thông tin hoặc sai định dạng!");
+      // Điều hướng dựa trên role
+      if (role === "ADMIN") {
+        navigate("/admin/conferences");
+      } else if (role === "CHAIR") {
+        navigate("/chair/submissions");
+      } else {
+        navigate("/dashboard"); 
+      }
     }
-  };
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || "Sai tài khoản hoặc mật khẩu";
+    console.error("Lỗi đăng nhập:", errorMsg);
+    alert(errorMsg);
+  }
+};
 
   return (
     <div className="flex flex-col h-screen w-full font-sans">
